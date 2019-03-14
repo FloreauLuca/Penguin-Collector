@@ -9,6 +9,7 @@ public class CellularAutomata : MonoBehaviour
     [SerializeField] [Range(0, 100)] int iteration = 10;
     [SerializeField] private TileBase tile;
     [SerializeField] private Tilemap tilemap;
+    
 
 
     struct Cell
@@ -118,14 +119,15 @@ public class CellularAutomata : MonoBehaviour
             
             yield return new WaitForSeconds(0.1f);
         }
-
-        isRunning = false;
+        
 
         //Cut Cube
         //CutCube();
 
         //Generate cube
         GenerateCube();
+
+        GameManager.Instance.MapLoaded();
     }
 
     void GenerateCube()
@@ -162,5 +164,19 @@ public class CellularAutomata : MonoBehaviour
     void Update()
     {
 
+    }
+
+    public Vector2 GetSpawn()
+    {
+        while (true)
+        {
+            int newX = Random.Range(0, size);
+            int newY = Random.Range(0, size);
+            if (cells[newX, newY].isAlive)
+            {
+                Debug.Log(newX +" "+ newY);
+                return new Vector2(newX, newY);
+            }
+        }
     }
 }
