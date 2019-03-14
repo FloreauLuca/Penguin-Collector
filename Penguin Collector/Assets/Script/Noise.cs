@@ -22,7 +22,7 @@ public class Noise : MonoBehaviour
         Cell[,] grid = new Cell[10, 10];
         foreach (var cell in grid)
         {
-            cell.color = Color.Lerp(Color.white, Color.black, Convert.ToSingle(cell.y) / grid.Rank);
+            //cell.color = Color.Lerp(Color.white, Color.black, Convert.ToSingle(cell.y) / grid.Rank);
         }
     }
 
