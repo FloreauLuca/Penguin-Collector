@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -77,7 +78,10 @@ public class GameManager : MonoBehaviour
 
     public void MapLoaded()
     {
-        playerScript.transform.position = mapScript.GetSpawn();
+        Vector2Int newPositionInt = mapScript.GetSpawn();
+        Vector2 newPosition = newPositionInt;
+        playerScript.transform.position = newPosition;
+        playerScript.CurrentRoom = mapScript.GetRoom(newPositionInt);
     }
 
     public void QuitGame()
