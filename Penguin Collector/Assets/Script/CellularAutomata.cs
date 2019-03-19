@@ -29,17 +29,19 @@ public class CellularAutomata : MonoBehaviour
         public int penguinRegion;
     }
 
-    Cell[,] cells;
+    private Cell[,] cells;
+
+    private List<List<Cell>> regionOfCell;
 
     bool isRunning;
 
 
-    int currentRegion = 0;
-    int biggestRegion = 0;
-    int currentEnemyRegion = 0;
-    int currentChestRegion = 0;
-    int currentPenguinRegion = 0;
-    List<Color> colors;
+    private int currentRegion = 0;
+    private int biggestRegion = 0;
+    private int currentEnemyRegion = 0;
+    private int currentChestRegion = 0;
+    private int currentPenguinRegion = 0;
+    private List<Color> colors;
     
 
 
@@ -49,7 +51,7 @@ public class CellularAutomata : MonoBehaviour
     {
         //Create array
         cells = new Cell[size, size];
-
+        regionOfCell = new List<List<Cell>>();
         colors = new List<Color> {
             new Color(1, 1, 1, 0.2f),
             new Color(1, 0, 0, 0.2f),
@@ -72,6 +74,46 @@ public class CellularAutomata : MonoBehaviour
 
         WorldGeneration();
 
+    }
+
+    void WorldGeneration()
+    {
+        isRunning = true;
+
+        Init();
+
+        for (int i = 0; i < iteration; i++)
+        {
+            Cellular();
+        }
+
+        GenerateRoom();
+
+
+        //Cut Cube
+        //CutCube();
+
+        //Generate cube
+        GenerateCube();
+
+
+
+        GameManager.Instance.MapLoaded();
+
+        for (int i = 0; i < nbEnemy; i++)
+        {
+            GenerateEnemy();
+        }
+
+        for (int i = 0; i < nbChest; i++)
+        {
+            GenerateChest();
+        }
+
+        for (int i = 0; i < nbPenguin; i++)
+        {
+            GeneratePenguin();
+        }
     }
 
     void Cellular()
@@ -125,46 +167,6 @@ public class CellularAutomata : MonoBehaviour
         }
     }
 
-    void WorldGeneration()
-    {
-        isRunning = true;
-
-        Init();
-
-        for (int i = 0; i < iteration; i++)
-        {
-            Cellular();
-        }
-
-        GenerateRoom();
-        
-
-        //Cut Cube
-        //CutCube();
-
-        //Generate cube
-        GenerateCube();
-
-
-
-        GameManager.Instance.MapLoaded();
-
-        for (int i = 0; i < nbEnemy; i++)
-        {
-            GenerateEnemy();
-        }
-
-        for (int i = 0; i < nbChest; i++)
-        {
-            GenerateChest();
-        }
-
-        for (int i = 0; i < nbPenguin; i++)
-        {
-            GeneratePenguin();
-        }
-    }
-
 
     void Init()
     {
@@ -191,7 +193,7 @@ public class CellularAutomata : MonoBehaviour
         int sizeMax = 0;
         int actualSize = 0;
         BoundsInt bounds = new BoundsInt(-1, -1, 0, 3, 3, 1);
-
+        regionOfCell.Add(new List<Cell>());
         for (int x = 0; x < size; x++)
         {
             for (int y = 0; y < size; y++)
@@ -207,6 +209,7 @@ public class CellularAutomata : MonoBehaviour
                 while (openList.Count > 0)
                 {
                     cells[openList[0].x, openList[0].y].region = currentRegion;
+                    regionOfCell[currentRegion].Add(cells[openList[0].x, openList[0].y]);
                     actualSize++;
                     closedList.Add(openList[0]);
 
@@ -246,10 +249,19 @@ public class CellularAutomata : MonoBehaviour
                     sizeMax = actualSize;
                     biggestRegion = currentRegion;
                 }
+               
+                Debug.Log(regionOfCell[currentRegion].Count);
                 currentRegion++;
+                regionOfCell.Add(new List<Cell>());
                 actualSize = 0;
+                
             }
         }
+    }
+
+    void GenerateBridge()
+    {
+
     }
 
 
@@ -270,21 +282,23 @@ public class CellularAutomata : MonoBehaviour
 
 
     void OnDrawGizmos()
-    {
+    { 
+        
         if (!isRunning) return;
 
         for (int x = 0; x < size; x++)
         {
             for (int y = 0; y < size; y++)
             {
-                if (cells[x, y].chestRegion>-1)
+                if (cells[x, y].region>-1)
                 {
 
-                    Gizmos.color = cells[x, y].chestRegion < 0 ? Color.clear : colors[cells[x, y].chestRegion % colors.Count];
+                    Gizmos.color = cells[x, y].region < 0 ? Color.clear : colors[cells[x, y].region % colors.Count];
                     Gizmos.DrawCube(new Vector3(x + 0.5f, y + 0.5f, 0), Vector2.one);
                 }
             }
         }
+        
     }
     
     
@@ -371,7 +385,7 @@ public class CellularAutomata : MonoBehaviour
                 continue;
             }
 
-            Instantiate(chestPrefab, new Vector3(newPosition.x, newPosition.y, 0), Quaternion.identity);
+            Instantiate(chestPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
 
             foreach (Vector3Int b in boundsChest.allPositionsWithin)
             {
@@ -414,7 +428,7 @@ public class CellularAutomata : MonoBehaviour
                 continue;
             }
 
-            Instantiate(penguinPrefab, new Vector3(newPosition.x, newPosition.y, 0), Quaternion.identity);
+            Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
 
             foreach (Vector3Int b in boundsPenguin.allPositionsWithin)
             {

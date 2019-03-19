@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     private Vector2 direction;
+    private Vector2 orientation;
     [SerializeField] private float playerSpeed;
 
     private Rigidbody2D rigidbody2D;
@@ -28,13 +29,38 @@ public class Player : MonoBehaviour
         set { penguinList = value; }
     }
 
-    
+    [SerializeField] private GameObject harpoonBallPrefab;
+    [SerializeField] private GameObject akBallPrefab;
+
+    private int fireTimer = 0;
 
     [Header("Statistique")]
-    public float damage;
-    public float life;
-    public int money;
+    private float damage = 1;
+    public float Damage
+    {
+        get { return damage; }
+        set { damage = value; }
+    }
 
+    [SerializeField] private float life;
+    public float Life
+    {
+        get { return life; }
+        set { life = value; }
+    }
+
+    [SerializeField] private int money;
+
+    [SerializeField] private WeaponType weaponType = WeaponType.NOTHING;
+
+    public enum WeaponType
+    {
+        NOTHING,
+        HAMMER,
+        SPEAR,
+        HARPOON,
+        AK
+    }
 
 
 
@@ -53,6 +79,7 @@ public class Player : MonoBehaviour
         if (Mathf.Abs(Input.GetAxisRaw("Horizontal"))>0)
         {
             direction = Vector2.right * Input.GetAxis("Horizontal") * playerSpeed;
+            orientation = Vector2.right * Input.GetAxisRaw("Horizontal");
             if (Input.GetAxis("Horizontal") > 0)
             {
                 animator.SetInteger("Direction", 1);
@@ -64,6 +91,7 @@ public class Player : MonoBehaviour
         } else if (Mathf.Abs(Input.GetAxisRaw("Vertical")) > 0)
         {
             direction = Vector2.up * Input.GetAxis("Vertical") * playerSpeed;
+            orientation = Vector2.up * Input.GetAxisRaw("Vertical");
             if (Input.GetAxis("Vertical") > 0)
             {
                 animator.SetInteger("Direction", 0);
@@ -77,10 +105,46 @@ public class Player : MonoBehaviour
         {
             direction = Vector2.zero;
         }
-        
         if (Input.GetButtonDown("Fire"))
         {
-            animator.SetTrigger("Attack");
+            fireTimer = 0;
+        }
+
+        if (Input.GetButton("Fire"))
+        {
+            direction = Vector2.zero;
+            
+            
+            if (weaponType == WeaponType.HARPOON)
+            {
+                if (fireTimer == 0)
+                {
+                    Instantiate(harpoonBallPrefab, transform.position + Vector3.up * 0.17f, Quaternion.Euler(0, 0, Mathf.Rad2Deg * (Mathf.Acos(orientation.y) * Mathf.Abs(orientation.y) - Mathf.Asin(orientation.x) * Mathf.Abs(orientation.x))));
+                    fireTimer++;
+                    animator.SetTrigger("Attack");
+                }
+            } else if (weaponType == WeaponType.AK)
+            {
+                if (fireTimer == 0)
+                {
+                    Instantiate(akBallPrefab, transform.position + Vector3.up * 0.17f, Quaternion.Euler(0, 0, Mathf.Rad2Deg * (Mathf.Acos(orientation.y) * Mathf.Abs(orientation.y) - Mathf.Asin(orientation.x) * Mathf.Abs(orientation.x))));
+                    fireTimer++;
+                    animator.SetTrigger("Attack");
+                }
+                else if (fireTimer == 10)
+                {
+                    fireTimer = 0;
+                }
+                else
+                {
+                    fireTimer++;
+                }
+            }
+            else
+            {
+
+                animator.SetTrigger("Attack");
+            }
         }
     }
 
@@ -117,15 +181,33 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(1f);
         invincibility = false;
         spriteRenderer.color = new Color(1, 1, 1, 1);
-
     }
 
     public void Reward(int price)
     {
         money += price;
-        if (money < 5)
+        if (weaponType != WeaponType.AK)
         {
-            animator.SetInteger("Weapon", money);
+            weaponType++;
+        }
+
+        switch (weaponType)
+        {
+            case WeaponType.NOTHING:
+                animator.SetInteger("Weapon", 0);
+                break;
+            case WeaponType.HAMMER:
+                animator.SetInteger("Weapon", 1);
+                break;
+            case WeaponType.SPEAR:
+                animator.SetInteger("Weapon", 2);
+                break;
+            case WeaponType.HARPOON:
+                animator.SetInteger("Weapon", 3);
+                break;
+            case WeaponType.AK:
+                animator.SetInteger("Weapon", 4);
+                break;
         }
     }
 }

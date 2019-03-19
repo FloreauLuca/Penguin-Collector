@@ -20,10 +20,22 @@ public class Enemy : MonoBehaviour
         set { room = value; }
     }
 
+    private float life;
+
+    public float Life
+    {
+        get { return life; }
+        set { life = value; }
+    }
+
+
+    private SpriteRenderer spriteRenderer;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        life = soEnemy.life;
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
     }
 
     // Update is called once per frame
@@ -32,11 +44,34 @@ public class Enemy : MonoBehaviour
         
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.CompareTag("Player"))
+        if (other.gameObject.CompareTag("Player"))
         {
-            other.GetComponent<Player>().Hit(soEnemy.damage);
+            other.gameObject.GetComponent<Player>().Hit(soEnemy.damage);
         }
+    }
+
+
+    public void Hit(float hitDamage)
+    {
+        life -= hitDamage;
+
+        if (life < 0)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            StartCoroutine(Invincibility());
+        }
+    }
+
+    IEnumerator Invincibility()
+    {
+        spriteRenderer.color = new Color(1, 0, 0, 1);
+        yield return new WaitForSeconds(0.2f);
+        spriteRenderer.color = new Color(1, 1, 1, 1);
+
     }
 }

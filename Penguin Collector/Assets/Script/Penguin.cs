@@ -42,7 +42,6 @@ public class Penguin : MonoBehaviour
                 {
                     connectedRigidbody2D = other.gameObject.GetComponent<Rigidbody2D>();
                 }
-                Debug.Log(connectedRigidbody2D);
                 distanceJoint2D.connectedBody = connectedRigidbody2D;
                 distanceJoint2D.distance = 0.5f;
                 distanceJoint2D.enabled = true;
