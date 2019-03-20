@@ -13,11 +13,11 @@ public class Player : MonoBehaviour
     private Animator animator;
     private SpriteRenderer spriteRenderer;
 
-    private int currentRoom = -1;
-    public int CurrentRoom
+    private int currentRegion = -1;
+    public int CurrentRegion
     {
-        get { return currentRoom; }
-        set { currentRoom = value; }
+        get { return currentRegion; }
+        set { currentRegion = value; }
     }
 
     private bool invincibility;
@@ -143,7 +143,11 @@ public class Player : MonoBehaviour
             else
             {
 
-                animator.SetTrigger("Attack");
+                if (fireTimer == 0)
+                {
+                    fireTimer++;
+                    animator.SetTrigger("Attack");
+                }
             }
         }
     }

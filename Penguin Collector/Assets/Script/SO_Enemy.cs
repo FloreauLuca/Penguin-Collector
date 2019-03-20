@@ -20,7 +20,7 @@ public class SO_Enemy : ScriptableObject
     {
         GameObject enemy = Instantiate(enemyPrefab, position, Quaternion.identity);
         enemy.GetComponent<Enemy>().SoEnemy = this;
-        enemy.GetComponent<Enemy>().Room = room;
+        enemy.GetComponent<Enemy>().Region = room;
         enemy.GetComponentInChildren<SpriteRenderer>().sprite = enemySprite;
 
         return enemy;

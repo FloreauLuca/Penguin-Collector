@@ -12,12 +12,12 @@ public class Enemy : MonoBehaviour
         set { soEnemy = value; }
     }
 
-    private int room = -1;
+    private int region = -1;
 
-    public int Room
+    public int Region
     {
-        get { return room; }
-        set { room = value; }
+        get { return region; }
+        set { region = value; }
     }
 
     private float life;
