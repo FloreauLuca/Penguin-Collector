@@ -565,7 +565,7 @@ MonoBehaviour:
   penguinPrefab: {fileID: 2996176794143975346, guid: 3023353920b0db049a5846cd381c7f8c,
     type: 3}
   tilemap: {fileID: 1761217901}
-  seed: 7922
+  seed: 0
 --- !u!4 &502496013
 Transform:
   m_ObjectHideFlags: 0

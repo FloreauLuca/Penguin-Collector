@@ -85,6 +85,8 @@ public class CellularAutomata : MonoBehaviour
 
     private List<Color> colors;
 
+    private List<Vector2> debug;
+
     void Start()
     {
         //Initialize seed
@@ -94,6 +96,7 @@ public class CellularAutomata : MonoBehaviour
         }
         Random.InitState(seed);
 
+        debug = new List<Vector2>();
 
         //Create array
         mapOfCells = new Cell[mapSize, mapSize];
@@ -518,6 +521,14 @@ public class CellularAutomata : MonoBehaviour
             for (int y = 0; y < mapSize; y++)
             {
                 if (!mapOfCells[x, y].isAlive) continue;
+                if (mapOfCells[x, y].region >= 0)
+                {
+                   
+                    if (regionList[mapOfCells[x, y].region].cells.Count < 10)
+                    {
+                        continue;
+                    }
+                }
                 if (mapOfCells[x, y].room != -1) continue;
 
                 List<Vector2Int> openList = new List<Vector2Int>();
@@ -573,14 +584,15 @@ public class CellularAutomata : MonoBehaviour
             }
         }
         roomList.RemoveAt(roomList.Count - 1);
-        
 
         OrganizeRoom();
         FindEdge();
+        PriorityCalculation();
     }
 
     void OrganizeRoom()
     {
+        List<Room> toDestroy = new List<Room>();
         foreach (Room room in roomList)
         {
             if (room.cells.Count < minSizeOfRoom && !room.island)
@@ -609,15 +621,18 @@ public class CellularAutomata : MonoBehaviour
                         break;
                     }
                 }
+
                 for (int i = 0; i < room.cells.Count; i++)
                 {
                     Cell newCell = room.cells[i];
                     newCell.room = newRoom;
                     room.cells[i] = newCell;
+                    roomList[newRoom].cells.Add(newCell);
                     mapOfCells[newCell.position.x, newCell.position.y] = newCell;
                 }
             }
         }
+        
     }
 
     void PriorityCalculation()
@@ -625,14 +640,48 @@ public class CellularAutomata : MonoBehaviour
         priorityRoomList = new List<Room>();
         foreach (Room room in roomList)
         {
-            if (priorityRoomList.Count > 0)
+            if (room.edgeCells.Count > 0)
             {
+                bool inserted = false;
+                if (priorityRoomList.Count > 0)
+                {
+                    for (int i = 0; i < priorityRoomList.Count; i++)
+                    {
+                        if ((room.island && priorityRoomList[i].island) ||
+                            (!room.island && !priorityRoomList[i].island))
+                        {
+                            if (room.edgeCells.Count > priorityRoomList[i].edgeCells.Count)
+                            {
+                                priorityRoomList.Insert(i, room);
+                                inserted = true;
+                                break;
+                            }
+                        }
+                        else if (room.island && !priorityRoomList[i].island)
+                        {
+                            priorityRoomList.Insert(i, room);
+                            inserted = true;
+                            break;
+                        }
+                    }
 
+                    if (!inserted)
+                    {
+                        priorityRoomList.Add(room);
+                    }
+
+                }
+                else
+                {
+                    priorityRoomList.Add(room);
+                }
             }
-            else
-            {
-                priorityRoomList.Add(room);
-            }
+
+        }
+
+        foreach (Room room1 in priorityRoomList)
+        {
+            Debug.Log(room1.edgeCells.Count + "   " + room1.island + room1.cells[0].position);
         }
     }
 
@@ -830,6 +879,8 @@ public class CellularAutomata : MonoBehaviour
             }
         }
 
+        //Gizmos.DrawIcon(new Vector3(11 + 0.5f, 42+0.5f, 0), "penguoin3.png");
+        /*
         foreach (Room room in roomList)
         {
             foreach (Cell edgeCell in room.edgeCells)
@@ -837,6 +888,11 @@ public class CellularAutomata : MonoBehaviour
 
                 Gizmos.DrawIcon(new Vector3(edgeCell.position.x + 0.5f, edgeCell.position.y + 0.5f, 0), "hammeritem.png");
             }
+        }*/
+
+        foreach (var point in debug)
+        {
+            Gizmos.DrawIcon(point, "hammeritem.png");
         }
 
     }
