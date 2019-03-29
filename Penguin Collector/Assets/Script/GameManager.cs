@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
         get { return playerScript; }
         set { playerScript = value; }
     }
+    
 
     private CellularAutomata mapScript;
 
@@ -23,6 +24,14 @@ public class GameManager : MonoBehaviour
     {
         get { return mapScript; }
         set { mapScript = value; }
+    }
+
+    private MapNavigation mapNav;
+
+    public MapNavigation MapNav
+    {
+        get { return mapNav; }
+        set { mapNav = value; }
     }
 
     private void OnEnable()
@@ -54,6 +63,7 @@ public class GameManager : MonoBehaviour
     {
         playerScript = FindObjectOfType<Player>();
         mapScript = FindObjectOfType<CellularAutomata>();
+        MapNav = FindObjectOfType<MapNavigation>();
     }
 
     private void Awake()

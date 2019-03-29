@@ -6,9 +6,55 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
 
+public struct Cell
+{
+    public bool isAlive;
+    public bool futureState;
+
+    public Vector2Int position;
+    public int region;
+    public int room;
+    public bool edge;
+
+    public bool occuped;
+    public int enemyRegion;
+    public int chestRegion;
+}
+
+
+public class Room
+{
+    public List<Cell> cells;
+    public List<Cell> edgeCells;
+    public bool island;
+    public bool occuped;
+
+    public Room()
+    {
+        cells = new List<Cell>();
+        edgeCells = new List<Cell>();
+
+    }
+}
+
+public class Region
+{
+    public List<Cell> cells;
+    public List<Region> connectedRegions;
+    public List<Cell> edgeCells;
+
+    public Region()
+    {
+        cells = new List<Cell>();
+        connectedRegions = new List<Region>();
+        edgeCells = new List<Cell>();
+    }
+}
+
 public class CellularAutomata : MonoBehaviour
 {
     [SerializeField] [Range(0, 250)] private int mapSize = 50;
+    public int MapSize => mapSize;
     [SerializeField] [Range(0, 100)] private int cellularIteration = 10;
     [SerializeField] private int maxSizeOfRoom = 10;
     [SerializeField] private int minSizeOfRoom = 10;
@@ -19,55 +65,17 @@ public class CellularAutomata : MonoBehaviour
     [SerializeField] private SO_Enemy[] enemies;
     [SerializeField] private GameObject chestPrefab;
     [SerializeField] private GameObject penguinPrefab;
-    [SerializeField] private Tilemap tilemap;
+    [SerializeField] private Tilemap tilemapIce;
+    public Tilemap TilemapIce => tilemapIce;
+
+    
     [SerializeField] private int seed;
 
 
     bool isRunning; // Display Gizmos
 
-    struct Cell
-    {
-        public bool isAlive;
-        public bool futureState;
+    
 
-        public Vector2Int position;
-        public int region;
-        public int room;
-        public bool edge;
-
-        public bool occuped;
-        public int enemyRegion;
-        public int chestRegion;
-    }
-
-    class Room
-    {
-        public List<Cell> cells;
-        public List<Cell> edgeCells;
-        public bool island;
-        public bool occuped;
-
-        public Room()
-        {
-            cells = new List<Cell>();
-            edgeCells = new List<Cell>();
-
-        }
-    }
-
-    class Region
-    {
-        public List<Cell> cells;
-        public List<Region> connectedRegions;
-        public List<Cell> edgeCells;
-
-        public Region()
-        {
-            cells = new List<Cell>();
-            connectedRegions = new List<Region>();
-            edgeCells = new List<Cell>();
-        }
-    }
 
     private Cell[,] mapOfCells;
 
@@ -170,6 +178,7 @@ public class CellularAutomata : MonoBehaviour
         GenerateCube();
         yield return null;
 
+        GameManager.Instance.MapNav.Initialize(mapOfCells, roomList);
         
         GameManager.Instance.MapLoaded();
 
@@ -592,7 +601,6 @@ public class CellularAutomata : MonoBehaviour
 
     void OrganizeRoom()
     {
-        List<Room> toDestroy = new List<Room>();
         foreach (Room room in roomList)
         {
             if (room.cells.Count < minSizeOfRoom && !room.island)
@@ -608,27 +616,28 @@ public class CellularAutomata : MonoBehaviour
                         if (cell.position.y + b.y < 0 || cell.position.y + b.y >= mapSize) continue;
                         if (!mapOfCells[cell.position.x + b.x, cell.position.y + b.y].isAlive) continue;
                         if (mapOfCells[cell.position.x + b.x, cell.position.y + b.y].region != cell.region) continue;
-                        
                         if (mapOfCells[cell.position.x + b.x, cell.position.y + b.y].room != cell.room)
                         {
                             newRoom = mapOfCells[cell.position.x + b.x, cell.position.y + b.y].room;
                             break;
                         }
                     }
-
                     if (newRoom >= 0)
                     {
                         break;
                     }
                 }
 
-                for (int i = 0; i < room.cells.Count; i++)
+                if (newRoom >= 0)
                 {
-                    Cell newCell = room.cells[i];
-                    newCell.room = newRoom;
-                    room.cells[i] = newCell;
-                    roomList[newRoom].cells.Add(newCell);
-                    mapOfCells[newCell.position.x, newCell.position.y] = newCell;
+                    for (int i = 0; i < room.cells.Count; i++)
+                    {
+                        Cell newCell = room.cells[i];
+                        newCell.room = newRoom;
+                        room.cells[i] = newCell;
+                        roomList[newRoom].cells.Add(newCell);
+                        mapOfCells[newCell.position.x, newCell.position.y] = newCell;
+                    }
                 }
             }
         }
@@ -694,14 +703,14 @@ public class CellularAutomata : MonoBehaviour
                 if (mapOfCells[x, y].isAlive)
                 {
 
-                    tilemap.SetTile(new Vector3Int(x, y, 0), tile);
+                    tilemapIce.SetTile(new Vector3Int(x, y, 0), tile);
                 }
             }
         }
     }
 
 
-   
+    
     void GenerateEnemy()
     {
         BoundsInt boundsEnemy = new BoundsInt(-2, -2, 0, 5, 5, 1);
@@ -838,16 +847,15 @@ public class CellularAutomata : MonoBehaviour
                 //if (mapOfCells[newPosition.x + b.x, newPosition.y + b.y].region != biggestRegion) continue;
                 //Debug.Log(mapOfCells[newPosition.x + b.x, newPosition.y + b.y].region + " " + biggestRegion);
 
-                if (mapOfCells[newPosition.x + b.x, newPosition.y + b.y].isAlive)
+                if (mapOfCells[newPosition.x + b.x, newPosition.y + b.y].isAlive && !mapOfCells[newPosition.x + b.x, newPosition.y + b.y].occuped)
                 {
                     neighboursAlive++;
-
                 }
+            }
 
-                if (neighboursAlive == 9)
-                {
-                    return newPosition;
-                }
+            if (neighboursAlive == 9)
+            {
+                return newPosition;
             }
 
         }
