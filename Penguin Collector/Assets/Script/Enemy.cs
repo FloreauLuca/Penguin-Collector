@@ -90,7 +90,7 @@ public class Enemy : MonoBehaviour
         rigidbody2D.velocity = followingPath[indexPath] - (Vector2)transform.position;
         rigidbody2D.velocity = rigidbody2D.velocity.normalized * 2f;
 
-        if (Vector2.Distance((Vector2) transform.position, followingPath[indexPath]) < 0.5f)
+        if (Vector2.Distance(transform.position, followingPath[indexPath]) < 0.5f)
         {
             indexPath++;
         }

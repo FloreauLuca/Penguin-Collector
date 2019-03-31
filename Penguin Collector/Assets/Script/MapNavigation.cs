@@ -136,10 +136,10 @@ public class MapNavigation : MonoBehaviour
         return returnNode;
     }
 
-    public List<Vector2> Astar(Vector2 goalPos, Vector2 startPos)
+    public List<Vector2> Astar(Vector2 startPosition, Vector2 goalPosition)
     {
-        Node startingNode = GetNode(startPos);
-        Node goalNode = GetNode(goalPos);
+        Node startingNode = GetNode(goalPosition);
+        Node goalNode = GetNode(startPosition);
         List<Node> openList = new List<Node> { startingNode };
         List<Node> closedList = new List<Node>();
         List<Vector2> path = new List<Vector2>();

@@ -552,9 +552,9 @@ MonoBehaviour:
   cellularIteration: 10
   maxSizeOfRoom: 40
   minSizeOfRoom: 25
-  nbEnemy: 4
-  nbChest: 4
-  nbPenguin: 0
+  nbEnemy: 0
+  nbChest: 0
+  nbPenguin: 50
   tile: {fileID: 11400000, guid: e43d4c1da2b8c3348accc939492e2e32, type: 2}
   enemies:
   - {fileID: 11400000, guid: 9238d346eaba8a34cb7d12e2d55bf2ad, type: 2}
