@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
+using UnityEditor.Animations;
+
 
 public class Enemy : MonoBehaviour
 {
@@ -33,6 +35,7 @@ public class Enemy : MonoBehaviour
     private int indexPath = 0;
 
     private SpriteRenderer spriteRenderer;
+    private Animator animator;
 
     private Rigidbody2D rigidbody2D;
 
@@ -43,6 +46,8 @@ public class Enemy : MonoBehaviour
         life = soEnemy.life;
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         rigidbody2D = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        animator.runtimeAnimatorController = soEnemy.animator;
     }
 
     // Update is called once per frame
@@ -57,6 +62,8 @@ public class Enemy : MonoBehaviour
                 timer = 0;
             }
         }
+           animator.SetFloat("velX", rigidbody2D.velocity.x);
+           animator.SetFloat("velY", rigidbody2D.velocity.y);
     }
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -90,7 +97,7 @@ public class Enemy : MonoBehaviour
         rigidbody2D.velocity = followingPath[indexPath] - (Vector2)transform.position;
         rigidbody2D.velocity = rigidbody2D.velocity.normalized * 2f;
 
-        if (Vector2.Distance(transform.position, followingPath[indexPath]) < 0.5f)
+        if (Vector2.Distance(transform.position, followingPath[indexPath]) < 0.2f)
         {
             indexPath++;
         }

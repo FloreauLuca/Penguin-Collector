@@ -68,7 +68,7 @@ SpriteRenderer:
   m_SortingLayerID: -656194257
   m_SortingLayer: 2
   m_SortingOrder: -2
-  m_Sprite: {fileID: 21300000, guid: 5056ad0966e81994c96bf8ed2232374b, type: 3}
+  m_Sprite: {fileID: 21300002, guid: 4f96ab002230dac4ba479bcde38b29fa, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -92,6 +92,7 @@ GameObject:
   - component: {fileID: 6768798213743573934}
   - component: {fileID: 285217704175431801}
   - component: {fileID: 848823224868174817}
+  - component: {fileID: 7683351550000142238}
   m_Layer: 0
   m_Name: Penguin
   m_TagString: Penguin
@@ -197,3 +198,22 @@ DistanceJoint2D:
   m_AutoConfigureDistance: 0
   m_Distance: 0.524
   m_MaxDistanceOnly: 0
+--- !u!95 &7683351550000142238
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2996176794143975346}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: d9e41314664e6304ba02a609e3bc2828, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0

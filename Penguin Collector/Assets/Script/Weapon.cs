@@ -11,7 +11,7 @@ public class Weapon : MonoBehaviour
     {
         playerScript = GameManager.Instance.PlayerScript;
     }
-
+    
     protected void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Enemy") && !other.isTrigger)

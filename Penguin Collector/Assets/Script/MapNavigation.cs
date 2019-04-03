@@ -226,7 +226,7 @@ public class MapNavigation : MonoBehaviour
     void OnDrawGizmos()
     {
         if (nodes == null) return;
-        if (nodes != null) return;
+        //if (nodes != null) return;
         foreach (Node node in nodes)
         {
             if (node == null) continue;

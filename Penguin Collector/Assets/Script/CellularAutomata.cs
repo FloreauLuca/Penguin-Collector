@@ -5,7 +5,7 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
-
+//1459
 public struct Cell
 {
     public bool isAlive;
@@ -17,8 +17,6 @@ public struct Cell
     public bool edge;
 
     public bool occuped;
-    public int enemyRegion;
-    public int chestRegion;
 }
 
 
@@ -28,11 +26,13 @@ public class Room
     public List<Cell> edgeCells;
     public bool island;
     public bool occuped;
+    public List<Room> neighboursRooms;
 
     public Room()
     {
         cells = new List<Cell>();
         edgeCells = new List<Cell>();
+        neighboursRooms = new List<Room>();
 
     }
 }
@@ -58,13 +58,15 @@ public class CellularAutomata : MonoBehaviour
     [SerializeField] [Range(0, 100)] private int cellularIteration = 10;
     [SerializeField] private int maxSizeOfRoom = 10;
     [SerializeField] private int minSizeOfRoom = 10;
-    [SerializeField] private int nbEnemy = 10;
+    [SerializeField] private int nbBear = 10;
+    [SerializeField] private int nbSeal = 10;
     [SerializeField] private int nbChest = 10;
     [SerializeField] private int nbPenguin = 10;
     [SerializeField] private TileBase tile;
     [SerializeField] private SO_Enemy[] enemies;
     [SerializeField] private GameObject chestPrefab;
     [SerializeField] private GameObject penguinPrefab;
+    [SerializeField] private GameObject boatPrefab;
     [SerializeField] private Tilemap tilemapIce;
     public Tilemap TilemapIce => tilemapIce;
 
@@ -87,8 +89,6 @@ public class CellularAutomata : MonoBehaviour
 
     private int currentRegion = 0;
     private int biggestRegion = 0;
-    private int currentEnemyRegion = 0;
-    private int currentChestRegion = 0;
     private int currentRoom = 0;
 
     private List<Color> colors;
@@ -100,7 +100,7 @@ public class CellularAutomata : MonoBehaviour
         //Initialize seed
         if (seed == 0)
         {
-            seed = Random.Range(0, 10000);
+            seed = Random.Range(0, 1000000000);
         }
         Random.InitState(seed);
 
@@ -182,9 +182,15 @@ public class CellularAutomata : MonoBehaviour
         
         GameManager.Instance.MapLoaded();
 
-        for (int i = 0; i < nbEnemy; i++)
+
+        for (int i = 0; i < nbBear; i++)
         {
-            GenerateEnemy();
+            GenerateBear();
+        }
+        
+        for (int i = 0; i < nbSeal; i++)
+        {
+            GenerateSeal();
         }
 
         for (int i = 0; i < nbChest; i++)
@@ -209,8 +215,6 @@ public class CellularAutomata : MonoBehaviour
 
                 mapOfCells[x, y].region = -1;
                 mapOfCells[x, y].room = -1;
-                mapOfCells[x, y].enemyRegion = -1;
-                mapOfCells[x, y].chestRegion = -1;
                 mapOfCells[x, y].position = new Vector2Int(x, y);
 
                 float isAlive = Random.Range(0f, 1f);
@@ -415,10 +419,10 @@ public class CellularAutomata : MonoBehaviour
         for (int indexRegionA = 0; indexRegionA < regionList.Count; indexRegionA++)
         {
             possibleConnectionFound = false;
-            if (regionList[indexRegionA].cells.Count < 10) continue;
+            if (regionList[indexRegionA].cells.Count < minSizeOfRoom) continue;
             for (int indexRegionB = 0; indexRegionB < regionList.Count; indexRegionB++)
             {
-                if (regionList[indexRegionB].cells.Count < 10) continue;
+                if (regionList[indexRegionB].cells.Count < minSizeOfRoom) continue;
                 if (indexRegionA == indexRegionB) continue;
                 if (regionList[indexRegionA].connectedRegions.Contains(regionList[indexRegionB])) break;
 
@@ -493,7 +497,7 @@ public class CellularAutomata : MonoBehaviour
                     if (currentPosition.y + b.y < 0 || currentPosition.y + b.y >= mapSize) continue;
                     if (mapOfCells[currentPosition.x + b.x, currentPosition.y + b.y].isAlive) continue;
                     mapOfCells[currentPosition.x + b.x, currentPosition.y + b.y].isAlive = true;
-                    mapOfCells[currentPosition.x + b.x, currentPosition.y + b.y].room = -2;
+                    mapOfCells[currentPosition.x + b.x, currentPosition.y + b.y].room = -1;
                 }
             }
         }
@@ -505,19 +509,75 @@ public class CellularAutomata : MonoBehaviour
 
     void GenerateRoom()
     {
-        foreach (Region region in regionList)
+        for (int indexRegion = 0; indexRegion < regionList.Count; indexRegion++)
         {
-            if ((region.cells.Count < 10 || region.cells.Count > 100)||region.connectedRegions.Count != 1) continue;
+            if ((regionList[indexRegion].cells.Count < minSizeOfRoom || regionList[indexRegion].cells.Count > maxSizeOfRoom)|| regionList[indexRegion].connectedRegions.Count != 1) continue;
 
             roomList.Add(new Room());
-            for (int cellIndex = 0; cellIndex < region.cells.Count; cellIndex++)
+            for (int cellIndex = 0; cellIndex < regionList[indexRegion].cells.Count; cellIndex++)
             {
-                Cell newCell = region.cells[cellIndex];
+                Cell newCell = regionList[indexRegion].cells[cellIndex];
                 newCell.room = currentRoom;
                 mapOfCells[newCell.position.x, newCell.position.y] = newCell;
                 roomList[currentRoom].cells.Add(newCell);
-                roomList[currentRoom].island = true;
+                
             }
+            roomList[currentRoom].island = true;
+            Debug.Log(GetSpawn(roomList[currentRoom]));
+            if (GetSpawn(roomList[currentRoom]) == Vector2Int.zero)
+            {
+                for (int indexcell = 0; indexcell < roomList[currentRoom].cells.Count; indexcell++)
+                {
+                    Cell cell = roomList[currentRoom].cells[indexcell];
+                    int neighboursAlive = 0;
+                    BoundsInt newBounds = new BoundsInt(-1, -1, 0, 3, 3, 1);
+                    foreach (Vector2Int b in newBounds.allPositionsWithin)
+                    {
+                        if (cell.position.x + b.x < 0 || cell.position.x + b.x >= mapSize) break;
+                        if (cell.position.y + b.y < 0 || cell.position.y + b.y >= mapSize) break;
+                        if (mapOfCells[cell.position.x + b.x, cell.position.y + b.y].region != cell.region && mapOfCells[cell.position.x + b.x, cell.position.y + b.y].region >= 0) break;
+                        if (!mapOfCells[cell.position.x + b.x, cell.position.y + b.y].isAlive || mapOfCells[cell.position.x + b.x, cell.position.y + b.y].region < 0)
+                        {
+                            neighboursAlive++;
+                        }
+                        else if (regionList[mapOfCells[cell.position.x + b.x, cell.position.y + b.y].region].cells.Count >= minSizeOfRoom)
+                        {
+                            neighboursAlive++;
+                        }
+                    }
+
+                    Debug.Log(neighboursAlive);
+                    if (neighboursAlive == 9)
+                    {
+                        BoundsInt createBounds = new BoundsInt(-1, -1, 0, 3, 3, 1);
+                        foreach (Vector2Int b in createBounds.allPositionsWithin)
+                        {
+                            if (mapOfCells[cell.position.x + b.x, cell.position.y + b.y].region != cell.region || !mapOfCells[cell.position.x + b.x, cell.position.y + b.y].isAlive)
+                            {
+                                mapOfCells[cell.position.x + b.x, cell.position.y + b.y].isAlive = true;
+                                mapOfCells[cell.position.x + b.x, cell.position.y + b.y].room = currentRoom;
+                                mapOfCells[cell.position.x + b.x, cell.position.y + b.y].position = new Vector2Int(cell.position.x + b.x, cell.position.y + b.y);
+                                mapOfCells[cell.position.x + b.x, cell.position.y + b.y].region = mapOfCells[cell.position.x, cell.position.y].region;
+                                roomList[currentRoom].cells.Add(mapOfCells[cell.position.x + b.x, cell.position.y + b.y]);
+                                regionList[indexRegion].cells.Add(mapOfCells[cell.position.x + b.x, cell.position.y + b.y]);
+                                break;
+                            }
+                        }
+                    }
+
+                    if (GetSpawn(roomList[currentRoom]) != Vector2Int.zero)
+                    {
+
+                        break;
+                    }
+                }
+
+                if (GetSpawn(roomList[currentRoom]) != Vector2Int.zero)
+                {
+                    break;
+                }
+            }
+
             currentRoom++;
         }
 
@@ -533,7 +593,7 @@ public class CellularAutomata : MonoBehaviour
                 if (mapOfCells[x, y].region >= 0)
                 {
                    
-                    if (regionList[mapOfCells[x, y].region].cells.Count < 10)
+                    if (regionList[mapOfCells[x, y].region].cells.Count < minSizeOfRoom)
                     {
                         continue;
                     }
@@ -641,6 +701,26 @@ public class CellularAutomata : MonoBehaviour
                 }
             }
         }
+
+        foreach (Room room in roomList)
+        {
+            foreach (Cell cell in room.cells)
+            {
+                BoundsInt bounds = new BoundsInt(-1, -1, 0, 3, 3, 1);
+
+                foreach (Vector3Int b in bounds.allPositionsWithin)
+                {
+                    if (cell.position.x + b.x < 0 || cell.position.x + b.x >= mapSize) continue;
+                    if (cell.position.y + b.y < 0 || cell.position.y + b.y >= mapSize) continue;
+                    if (!mapOfCells[cell.position.x + b.x, cell.position.y + b.y].isAlive) continue;
+                    if (mapOfCells[cell.position.x + b.x, cell.position.y + b.y].room >= 0)
+                    if (mapOfCells[cell.position.x + b.x, cell.position.y + b.y].room != cell.room && !room.neighboursRooms.Contains(roomList[mapOfCells[cell.position.x + b.x, cell.position.y + b.y].room]))
+                    {
+                        room.neighboursRooms.Add(roomList[mapOfCells[cell.position.x + b.x, cell.position.y + b.y].room]);
+                    }
+                }
+            }
+        }
         
     }
 
@@ -659,7 +739,12 @@ public class CellularAutomata : MonoBehaviour
                         if ((room.island && priorityRoomList[i].island) ||
                             (!room.island && !priorityRoomList[i].island))
                         {
-                            if (room.edgeCells.Count > priorityRoomList[i].edgeCells.Count)
+                            if (room.neighboursRooms.Count < priorityRoomList[i].neighboursRooms.Count)
+                            {
+                                priorityRoomList.Insert(i, room);
+                                inserted = true;
+                                break;
+                            } else if (room.neighboursRooms.Count == priorityRoomList[i].neighboursRooms.Count && room.edgeCells.Count > priorityRoomList[i].edgeCells.Count)
                             {
                                 priorityRoomList.Insert(i, room);
                                 inserted = true;
@@ -690,7 +775,7 @@ public class CellularAutomata : MonoBehaviour
 
         foreach (Room room1 in priorityRoomList)
         {
-            Debug.Log(room1.edgeCells.Count + "   " + room1.island + room1.cells[0].position);
+            //Debug.Log(room1.neighboursRooms.Count + "   " + room1.edgeCells.Count + "   " + room1.island + room1.cells[0].position);
         }
     }
 
@@ -710,58 +795,81 @@ public class CellularAutomata : MonoBehaviour
     }
 
 
-    
-    void GenerateEnemy()
+
+    void GenerateBear()
     {
-        BoundsInt boundsEnemy = new BoundsInt(-2, -2, 0, 5, 5, 1);
-        for (int i = 0; i < 1000; i++)
+        Room spawningRoom = new Room();
+
+        for (int i = 0; i < priorityRoomList.Count; i++)
         {
-            Vector2Int newPosition = GetSpawn();
-            bool detectZone = false;
-            //Check Neighbours
-            foreach (Vector3Int b in boundsEnemy.allPositionsWithin)
+            if (!priorityRoomList[i].occuped)
             {
-                if (newPosition.x + b.x < 0 || newPosition.x + b.x >= mapSize) continue;
-                if (newPosition.y + b.y < 0 || newPosition.y + b.y >= mapSize) continue;
-                if (!mapOfCells[newPosition.x + b.x, newPosition.y + b.y].occuped) continue;
-
-                if (mapOfCells[newPosition.x + b.x, newPosition.y + b.y].enemyRegion != -1)
+                bool occuped = false;
+                foreach (Room neighbours in priorityRoomList[i].neighboursRooms)
                 {
-                    detectZone = true;
+                    if (neighbours.occuped)
+                    {
+                        occuped = true;
+                    }
+                }
+
+                if (!occuped)
+                {
+                    spawningRoom = priorityRoomList[i];
+                    break;
                 }
             }
+        }
 
-            if (detectZone)
+        Debug.Log(spawningRoom.cells[0].position);
+        if (spawningRoom.cells.Count > 0)
+        {
+            Vector2Int newPosition = GetSpawn(spawningRoom);
+            if (newPosition != Vector2Int.zero)
             {
-                continue;
+                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
+
+                enemies[1].Instantiate(new Vector2(newPosition.x + 1 + 0.5f, newPosition.y + 0.5f), GetRegion(newPosition));
             }
 
-            int index = Random.Range(0, enemies.Length);
-            enemies[index].Instantiate(new Vector2(newPosition.x+0.5f, newPosition.y+0.5f), GetRegion(newPosition));
             mapOfCells[newPosition.x, newPosition.y].occuped = true;
-
-            foreach (Vector3Int b in boundsEnemy.allPositionsWithin)
-            {
-                if (newPosition.x + b.x < 0 || newPosition.x + b.x >= mapSize) continue;
-                if (newPosition.y + b.y < 0 || newPosition.y + b.y >= mapSize) continue;
-
-                if (mapOfCells[newPosition.x + b.x, newPosition.y + b.y].isAlive)
-                {
-                    mapOfCells[newPosition.x + b.x, newPosition.y + b.y].enemyRegion = currentEnemyRegion;
-                }
-            }
-
-            currentEnemyRegion++;
-            break;
+            spawningRoom.occuped = true;
         }
     }
 
+
+    void GenerateSeal()
+    {
+        BoundsInt boundsEnemy = new BoundsInt(-2, -2, 0, 5, 5, 1);
+        Room spawningRoom = new Room();
+
+        for (int i = 0; i < priorityRoomList.Count; i++)
+        {
+            if (!priorityRoomList[i].occuped)
+            {
+                spawningRoom = priorityRoomList[i];
+                break;
+            }
+        }
+
+        if (spawningRoom.cells.Count > 0)
+        {
+            Vector2Int newPosition = GetSpawn(spawningRoom);
+
+            enemies[0].Instantiate(new Vector2(newPosition.x + 1 + 0.5f, newPosition.y + 0.5f), GetRegion(newPosition));
+
+            mapOfCells[newPosition.x, newPosition.y].occuped = true;
+            spawningRoom.occuped = true;
+        }
+    }
+    
     void GenerateChest()
     {
-        BoundsInt boundsChest = new BoundsInt(-4, -4, 0, 9, 9, 1);
+        /*
+        BoundsInt boundsChest = new BoundsInt(-2, -2, 0, 5, 5, 1);
         for (int i = 0; i < 1000; i++)
         {
-            Vector2Int newPosition = GetSpawn();
+            Vector2Int newPosition = Vector2Int.zero;// GetSpawn();
             bool detectZone = false;
             //Check Neighbours
             foreach (Vector3Int b in boundsChest.allPositionsWithin)
@@ -798,6 +906,7 @@ public class CellularAutomata : MonoBehaviour
             currentChestRegion++;
             break;
         }
+        */
 
     }
 
@@ -806,7 +915,7 @@ public class CellularAutomata : MonoBehaviour
         BoundsInt boundsPenguin = new BoundsInt(-1, -1, 0, 3, 3, 1);
         for (int i = 0; i < 1000; i++)
         {
-            Vector2Int newPosition = GetSpawn();
+            Vector2Int newPosition = Vector2Int.zero;//GetSpawn();
             bool detectZone = false;
             //Check Neighbours
             foreach (Vector3Int b in boundsPenguin.allPositionsWithin)
@@ -832,20 +941,20 @@ public class CellularAutomata : MonoBehaviour
 
     }
 
-    public Vector2Int GetSpawn()
+    public Vector2Int GetSpawn(Room room)
     {
         BoundsInt bounds = new BoundsInt(-1, -1, 0, 3, 3, 1);
+
         for (int i = 0; i < 1000; i++)
-        { 
+        {
             int neighboursAlive = 0;
-            Vector2Int newPosition = new Vector2Int(Random.Range(0, mapSize), Random.Range(0, mapSize));
+            Vector2Int newPosition = room.cells[Random.Range(0, room.cells.Count)].position;
             //Check Neighbours
             foreach (Vector3Int b in bounds.allPositionsWithin)
             {
                 if (newPosition.x + b.x < 0 || newPosition.x + b.x >= mapSize) continue;
                 if (newPosition.y + b.y < 0 || newPosition.y + b.y >= mapSize) continue;
-                //if (mapOfCells[newPosition.x + b.x, newPosition.y + b.y].region != biggestRegion) continue;
-                //Debug.Log(mapOfCells[newPosition.x + b.x, newPosition.y + b.y].region + " " + biggestRegion);
+                if (mapOfCells[newPosition.x + b.x, newPosition.y + b.y].room != mapOfCells[newPosition.x, newPosition.y].room) continue;
 
                 if (mapOfCells[newPosition.x + b.x, newPosition.y + b.y].isAlive && !mapOfCells[newPosition.x + b.x, newPosition.y + b.y].occuped)
                 {
@@ -859,13 +968,61 @@ public class CellularAutomata : MonoBehaviour
             }
 
         }
-        return new Vector2Int(0, 0);
+        Debug.LogError("Non spawn found");
+        return Vector2Int.zero;
     }
-    
+
+    public Vector2Int GetPlayerSpawn()
+    {
+        roomList[0].occuped = true;
+        Vector2 boatPosition = new Vector2();
+        Vector2Int playerPosition = new Vector2Int();
+        foreach (var room in roomList)
+        {
+            foreach (Cell edgeCell in room.edgeCells)
+            {
+                BoundsInt bounds = new BoundsInt(-1, -1, 0, 3, 3, 1);
+
+                int consecutiveEdge = 0;
+                foreach (Vector3Int b in bounds.allPositionsWithin)
+                {
+                    if ((edgeCell.position.x + b.x < 0 || edgeCell.position.x + b.x >= mapSize) || (edgeCell.position.y + b.y < 0 || edgeCell.position.y + b.y >= mapSize))
+                    {
+                        consecutiveEdge++;
+                        
+                    }
+                    else if (!mapOfCells[edgeCell.position.x + b.x, edgeCell.position.y + b.y].isAlive)
+                    {
+                        consecutiveEdge++;
+                    }
+                    else
+                    {
+                        consecutiveEdge = 0;
+                    }
+                    if (consecutiveEdge >= 2 && (b.x == 0 || b.y == 0))
+                    {
+                        boatPosition = new Vector2(edgeCell.position.x + b.x +0.5f, edgeCell.position.y + b.y + 0.5f);
+                    }
+                    if (consecutiveEdge >= 3)
+                    {
+                        playerPosition = edgeCell.position;
+                        Instantiate(boatPrefab, boatPosition, Quaternion.identity);
+                        return playerPosition;
+                    }
+                }
+            }
+        }
+        return Vector2Int.zero;
+    }
 
     public int GetRegion(Vector2Int position)
     {
         return mapOfCells[position.x, position.y].region;
+    }
+
+    public int GetRoom(Vector2Int position)
+    {
+        return mapOfCells[position.x, position.y].room;
     }
 
 

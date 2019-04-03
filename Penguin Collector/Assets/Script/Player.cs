@@ -20,6 +20,14 @@ public class Player : MonoBehaviour
         set { currentRegion = value; }
     }
 
+
+    private int currentRoom = -1;
+    public int CurrentRoom
+    {
+        get { return currentRoom; }
+        set { currentRoom = value; }
+    }
+
     private bool invincibility;
 
     private List<Penguin> penguinList;
@@ -71,6 +79,7 @@ public class Player : MonoBehaviour
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         penguinList = new List<Penguin>();
+        Reward(0);
     }
 
     // Update is called once per frame

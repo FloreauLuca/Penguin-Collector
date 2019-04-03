@@ -28,6 +28,7 @@ public class Penguin : MonoBehaviour
     private int indexPath = 0;
 
     SpriteRenderer spriteRenderer;
+    Animator animator;
 
     bool isRunning = false;
 
@@ -41,7 +42,7 @@ public class Penguin : MonoBehaviour
         distanceJoint2D.enabled = false;
 
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-
+        animator = GetComponent<Animator>();
         isRunning = true;
     }
 
@@ -86,6 +87,8 @@ public class Penguin : MonoBehaviour
 
             }
         }
+        animator.SetFloat("velX", rigidbody2D.velocity.x);
+        animator.SetFloat("velY", rigidbody2D.velocity.y);
     }
 
 
@@ -101,7 +104,7 @@ public class Penguin : MonoBehaviour
         }
 
         rigidbody2D.velocity = followingPath[indexPath] - (Vector2)transform.position;
-        rigidbody2D.velocity = rigidbody2D.velocity.normalized * 2f;
+        rigidbody2D.velocity = rigidbody2D.velocity.normalized * 4f;
 
         if (Vector2.Distance(transform.position, followingPath[indexPath]) < 0.5f)
         {
@@ -206,7 +209,7 @@ public class Penguin : MonoBehaviour
         Vector3 position = transform.position;
 
         Gizmos.color = Color.white;
-        Gizmos.DrawWireSphere(position, viewRadius);
+        //Gizmos.DrawWireSphere(position, viewRadius);
         /*
         Gizmos.color = Color.gray;
         Gizmos.DrawWireSphere(position, arrivalRadius);

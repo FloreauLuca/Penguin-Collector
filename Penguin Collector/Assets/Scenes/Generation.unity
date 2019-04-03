@@ -403,7 +403,7 @@ MonoBehaviour:
     type: 3}
   life: 100
   money: 0
-  weaponType: 0
+  weaponType: 1
 --- !u!50 &359683297
 Rigidbody2D:
   serializedVersion: 4
@@ -549,12 +549,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapSize: 50
-  cellularIteration: 10
+  cellularIteration: 5
   maxSizeOfRoom: 40
-  minSizeOfRoom: 25
-  nbEnemy: 0
+  minSizeOfRoom: 15
+  nbBear: 7
+  nbSeal: 25
   nbChest: 0
-  nbPenguin: 50
+  nbPenguin: 0
   tile: {fileID: 11400000, guid: e43d4c1da2b8c3348accc939492e2e32, type: 2}
   enemies:
   - {fileID: 11400000, guid: 9238d346eaba8a34cb7d12e2d55bf2ad, type: 2}
@@ -565,8 +566,10 @@ MonoBehaviour:
     type: 3}
   penguinPrefab: {fileID: 2996176794143975346, guid: 3023353920b0db049a5846cd381c7f8c,
     type: 3}
+  boatPrefab: {fileID: 6239980297088735005, guid: 0c02299f4b346924191a166b187790de,
+    type: 3}
   tilemapIce: {fileID: 1761217901}
-  seed: 2521
+  seed: 0
 --- !u!4 &502496013
 Transform:
   m_ObjectHideFlags: 0
@@ -1520,7 +1523,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1837717758}
   - component: {fileID: 1837717760}
-  - component: {fileID: 1837717759}
   m_Layer: 0
   m_Name: Map
   m_TagString: Untagged
@@ -1542,20 +1544,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1837717759
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1837717757}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ac7db8315510bd45bdeb65a0cf85606, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  minimap: {fileID: 0}
-  map: {fileID: 0}
 --- !u!20 &1837717760
 Camera:
   m_ObjectHideFlags: 0

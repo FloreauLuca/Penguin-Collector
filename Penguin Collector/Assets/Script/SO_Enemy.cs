@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Enemy")]
@@ -8,6 +9,7 @@ public class SO_Enemy : ScriptableObject
 {
     public GameObject enemyPrefab;
     public Sprite enemySprite;
+    public AnimatorController animator;
 
 
     [Header("Statistique")]
