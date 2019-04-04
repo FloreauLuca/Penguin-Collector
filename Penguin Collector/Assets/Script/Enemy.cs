@@ -8,7 +8,6 @@ using UnityEditor.Animations;
 public class Enemy : MonoBehaviour
 {
     [SerializeField] private SO_Enemy soEnemy;
-
     public SO_Enemy SoEnemy
     {
         get { return soEnemy; }
@@ -16,7 +15,6 @@ public class Enemy : MonoBehaviour
     }
 
     private int region = -1;
-
     public int Region
     {
         get { return region; }
@@ -24,7 +22,6 @@ public class Enemy : MonoBehaviour
     }
 
     private float life;
-
     public float Life
     {
         get { return life; }
