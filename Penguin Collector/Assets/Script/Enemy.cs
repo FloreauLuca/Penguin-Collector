@@ -13,6 +13,11 @@ public class Enemy : MonoBehaviour
         get { return soEnemy; }
         set { soEnemy = value; }
     }
+    
+    [SerializeField] float separateRadius;
+    [SerializeField] float maxSpeed;
+    [SerializeField] float maxForce;
+
 
     private int region = -1;
     public int Region
@@ -36,7 +41,14 @@ public class Enemy : MonoBehaviour
 
     private Rigidbody2D rigidbody2D;
 
-    private int timer = 1000;
+    private Vector2 startPosition;
+
+    public Vector2 StartPosition => startPosition;
+    private Room startRoom;
+
+    public Room StartRoom => startRoom;
+
+    private float timer = 1000;
     // Start is called before the first frame update
     void Start()
     {
@@ -45,19 +57,29 @@ public class Enemy : MonoBehaviour
         rigidbody2D = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         animator.runtimeAnimatorController = soEnemy.animator;
+        startPosition = transform.position;
+        startRoom = GameManager.Instance.MapScript.GetRoom(Vector2Int.RoundToInt(startPosition));
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (followingPath != null)
         {
+
+            Vector2 separateForce = Separate();
             FollowPath();
-            if (++timer >= 10)
+            if (timer >= 2)
             {
                 followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
                 timer = 0;
             }
+            else
+            {
+                timer += Time.deltaTime;
+            }
+
+            rigidbody2D.AddForce(separateForce);
         }
            animator.SetFloat("velX", rigidbody2D.velocity.x);
            animator.SetFloat("velY", rigidbody2D.velocity.y);
@@ -75,10 +97,53 @@ public class Enemy : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-              followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
+              //followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
             
         }
     }
+
+
+    public void FollowPlayer()
+    {
+        followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
+        
+    }
+
+    public void GoBackRoom()
+    {
+        followingPath = GameManager.Instance.MapNav.Astar(transform.position, startPosition);
+
+    }
+
+    public virtual void StandardMove()
+    {
+
+    }
+
+    Vector2 Separate()
+    {
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, separateRadius);
+
+        Vector2 separateForce = Vector2.zero;
+
+        foreach (Collider2D col in colliders)
+        {
+            if (col.gameObject.CompareTag("Penguin"))
+            {
+                Vector2 seekVelocity = transform.position - col.transform.position;
+                seekVelocity = seekVelocity.normalized * maxSpeed;
+                separateForce += seekVelocity - rigidbody2D.velocity;
+            }
+        }
+
+        if (separateForce.magnitude > maxForce)
+        {
+            separateForce = separateForce.normalized * maxForce;
+        }
+
+        return separateForce;
+    }
+
 
     public void FollowPath()
     {

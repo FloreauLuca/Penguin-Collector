@@ -41,9 +41,14 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetButtonDown("Cancel"))
         {
             Application.Quit();
+        }
+
+        if (Input.GetButtonDown("Restart"))
+        {
+            SceneManager.LoadScene("Generation");
         }
     }
 
@@ -92,7 +97,7 @@ public class GameManager : MonoBehaviour
         Vector2 newPosition = new Vector2(newPositionInt.x + 0.5f, newPositionInt.y + 0.5f);
         playerScript.transform.position = newPosition;
         playerScript.CurrentRegion = mapScript.GetRegion(newPositionInt);
-        playerScript.CurrentRoom = mapScript.GetRoom(newPositionInt);
+        playerScript.CurrentRoom = mapScript.GetRoomIndex(newPositionInt);
     }
 
     public void QuitGame()

@@ -828,8 +828,13 @@ public class CellularAutomata : MonoBehaviour
             if (newPosition != Vector2Int.zero)
             {
                 Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
+                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
+                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
+                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
+                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
 
                 enemies[1].Instantiate(new Vector2(newPosition.x + 1 + 0.5f, newPosition.y + 0.5f), GetRegion(newPosition));
+
             }
 
             mapOfCells[newPosition.x, newPosition.y].occuped = true;
@@ -1020,10 +1025,16 @@ public class CellularAutomata : MonoBehaviour
         return mapOfCells[position.x, position.y].region;
     }
 
-    public int GetRoom(Vector2Int position)
+    public int GetRoomIndex(Vector2Int position)
     {
         return mapOfCells[position.x, position.y].room;
     }
+
+    public Room GetRoom(Vector2Int position)
+    {
+        return roomList[mapOfCells[position.x, position.y].room];
+    }
+
 
 
     void OnDrawGizmos()

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Penguin : MonoBehaviour
 {
-    private DistanceJoint2D distanceJoint2D;
     private Rigidbody2D connectedRigidbody2D;
     private Rigidbody2D rigidbody2D;
 
@@ -12,6 +11,12 @@ public class Penguin : MonoBehaviour
     {
         get { return rigidbody2D; }
     }
+
+    private bool connected;
+
+    public bool Connected => connected;
+
+    
 
 
     [Header("Boids")]
@@ -21,6 +26,10 @@ public class Penguin : MonoBehaviour
     [SerializeField] float arrivalRadius;
 
     [SerializeField] float separateRadius;
+    [SerializeField] bool group;
+
+    [SerializeField] float detectRadius;
+
 
     Vector2 desiredVelocity;
 
@@ -33,51 +42,53 @@ public class Penguin : MonoBehaviour
     bool isRunning = false;
 
 
-    private int timer = 1000;
+    private float timer = 1000;
     // Start is called before the first frame update
     void Start()
     {
         rigidbody2D = GetComponent<Rigidbody2D>();
-        distanceJoint2D = GetComponent<DistanceJoint2D>();
-        distanceJoint2D.enabled = false;
 
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         animator = GetComponent<Animator>();
         isRunning = true;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
 
         if (connectedRigidbody2D != null)
         {
             if (Vector2.Distance(transform.position, connectedRigidbody2D.position) < viewRadius)
             {
+                followingPath = null;
+                indexPath = 0;
                 desiredVelocity = Vector2.zero;
 
                 Vector2 seekForce = Seek();
                 Vector2 separateForce = Separate();
-
+                Vector2 fleeForce = Flee();
+                /*
                 seekForce *= 1.5f;
                 separateForce *= 0.5f;
-
-                rigidbody2D.AddForce(seekForce);
-                rigidbody2D.AddForce(separateForce);
-
-                /*
-                //Update sprite
-                Vector2 dir = rigidbody2D.velocity;
-                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-                spriteRenderer.transform.localRotation = Quaternion.AngleAxis(angle, Vector3.forward);
-                spriteRenderer.transform.eulerAngles = new Vector3(0, 0, spriteRenderer.transform.eulerAngles.z - 90);
+                fleeForce *= 2f;
                 */
+                Vector2 newForce = (seekForce * 2 + separateForce * 1 + fleeForce * 3)/6;
+
+                rigidbody2D.AddForce(newForce);
+                
             }
             else
             {
-                if (++timer >= 10)
+                Vector2 separateForce = Separate();
+                if (timer >= 2)
                 {
                     followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
+                    indexPath = 0;
                     timer = 0;
+                }
+                else
+                {
+                    timer += Time.deltaTime;
                 }
 
                 if (followingPath != null)
@@ -85,6 +96,7 @@ public class Penguin : MonoBehaviour
                     FollowPath();
                 }
 
+                rigidbody2D.AddForce(separateForce);
             }
         }
         animator.SetFloat("velX", rigidbody2D.velocity.x);
@@ -104,7 +116,7 @@ public class Penguin : MonoBehaviour
         }
 
         rigidbody2D.velocity = followingPath[indexPath] - (Vector2)transform.position;
-        rigidbody2D.velocity = rigidbody2D.velocity.normalized * 4f;
+        rigidbody2D.velocity = rigidbody2D.velocity.normalized * 2f;
 
         if (Vector2.Distance(transform.position, followingPath[indexPath]) < 0.5f)
         {
@@ -173,13 +185,40 @@ public class Penguin : MonoBehaviour
         return separateForce;
     }
 
+    Vector2 Flee()
+    {
+
+        desiredVelocity = Vector2.zero;
+
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, separateRadius);
+
+        foreach (Collider2D col in colliders)
+        {
+            if ((col.gameObject.CompareTag("Enemy") || col.gameObject.CompareTag("Player")) && !col.isTrigger)
+            {
+                Vector2 seekVelocity = transform.position - col.transform.position;
+                seekVelocity = seekVelocity.normalized * maxSpeed;
+                desiredVelocity += seekVelocity - rigidbody2D.velocity;
+            }
+        }
+
+        if (desiredVelocity.magnitude > maxForce)
+        {
+            desiredVelocity = desiredVelocity.normalized * maxForce;
+        }
+
+        return desiredVelocity;
+
+    }
+
     private void OnCollisionEnter2D(Collision2D other)
     {
         if (other.gameObject.CompareTag("Player"))
         {
             if (!other.gameObject.GetComponent<Player>().PenguinList.Contains(this))
             {
-                if (other.gameObject.GetComponent<Player>().PenguinList.Count > 0)
+                
+                if (other.gameObject.GetComponent<Player>().PenguinList.Count > 0 && !group)
                 {
                     connectedRigidbody2D = other.gameObject.GetComponent<Player>().PenguinList[other.gameObject.GetComponent<Player>().PenguinList.Count - 1].MyRigidbody2D;
                 }
@@ -193,10 +232,26 @@ public class Penguin : MonoBehaviour
                 distanceJoint2D.enabled = true;
                 */
                 other.gameObject.GetComponent<Player>().PenguinList.Add(this);
-                
+                rigidbody2D.isKinematic = false;
+                connected = true;
             }
         }
 
+    }
+
+
+    public bool ViewPlayer()
+    {
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, detectRadius);
+        foreach (Collider2D collider in colliders)
+        {
+            if (collider.CompareTag("Player"))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
