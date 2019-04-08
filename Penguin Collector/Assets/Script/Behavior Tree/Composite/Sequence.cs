@@ -6,7 +6,7 @@ public class Sequence : Composite
 {
     private int currentChild = 0;
 
-    public Sequence(BTNode[] nodes) : base(nodes)
+    public Sequence(params BTNode[] nodes) : base(nodes)
     {
 
     }

@@ -17,6 +17,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] float separateRadius;
     [SerializeField] float maxSpeed;
     [SerializeField] float maxForce;
+    [SerializeField] protected float viewRadius;
 
 
     private int region = -1;
@@ -39,18 +40,21 @@ public class Enemy : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Animator animator;
 
-    private Rigidbody2D rigidbody2D;
+    protected Rigidbody2D rigidbody2D;
 
-    private Vector2 startPosition;
-
+    protected Vector2 startPosition;
     public Vector2 StartPosition => startPosition;
+
     private Room startRoom;
 
     public Room StartRoom => startRoom;
 
     private float timer = 1000;
+
+    protected TreeGenerator treeGenerator;
+
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
         life = soEnemy.life;
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
@@ -58,7 +62,8 @@ public class Enemy : MonoBehaviour
         animator = GetComponent<Animator>();
         animator.runtimeAnimatorController = soEnemy.animator;
         startPosition = transform.position;
-        startRoom = GameManager.Instance.MapScript.GetRoom(Vector2Int.RoundToInt(startPosition));
+        startRoom = GameManager.Instance.MapScript.GetRoom(Vector2Int.RoundToInt(new Vector2(startPosition.x-0.5f, startPosition.y-0.5f)));
+        treeGenerator = GetComponent<TreeGenerator>();
     }
 
     // Update is called once per frame
@@ -68,17 +73,9 @@ public class Enemy : MonoBehaviour
         {
 
             Vector2 separateForce = Separate();
+            
             FollowPath();
-            if (timer >= 2)
-            {
-                followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
-                timer = 0;
-            }
-            else
-            {
-                timer += Time.deltaTime;
-            }
-
+            
             rigidbody2D.AddForce(separateForce);
         }
            animator.SetFloat("velX", rigidbody2D.velocity.x);
@@ -92,32 +89,64 @@ public class Enemy : MonoBehaviour
             other.gameObject.GetComponent<Player>().Hit(soEnemy.damage);
         }
     }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.gameObject.CompareTag("Player"))
-        {
-              //followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
-            
-        }
-    }
-
+    
 
     public void FollowPlayer()
     {
-        followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
-        
+        Vector2 targetPosition = new Vector2();
+        if (false && Vector2.Distance(transform.position + (Vector3) rigidbody2D.velocity.normalized, GameManager.Instance.PlayerScript.transform.position) < Vector2.Distance(transform.position, GameManager.Instance.PlayerScript.transform.position))
+        {
+            targetPosition = transform.position + (Vector3) rigidbody2D.velocity.normalized;
+        }
+        else
+        {
+            targetPosition = transform.position;
+        }
+        if (followingPath != GameManager.Instance.MapNav.Astar(targetPosition, GameManager.Instance.PlayerScript.transform.position))
+        {
+            followingPath = GameManager.Instance.MapNav.Astar(targetPosition, GameManager.Instance.PlayerScript.transform.position);
+            indexPath = 0;
+        }
     }
 
-    public void GoBackRoom()
+    public bool GoBackRoom()
     {
-        followingPath = GameManager.Instance.MapNav.Astar(transform.position, startPosition);
+        Vector2 targetPosition = new Vector2();
+        if (false && Vector2.Distance(transform.position + (Vector3)rigidbody2D.velocity.normalized, startPosition) < Vector2.Distance(transform.position, startPosition))
+        {
+            targetPosition = transform.position + (Vector3)rigidbody2D.velocity.normalized;
+        }
+        else
+        {
+            targetPosition = transform.position;
+        }
+
+        if (followingPath != GameManager.Instance.MapNav.Astar(targetPosition, startPosition))
+        {
+            followingPath = GameManager.Instance.MapNav.Astar(targetPosition, startPosition);
+            indexPath = 0;
+        }
+        if (Mathf.Abs(transform.position.x - startPosition.x) > 1 && Mathf.Abs(transform.position.y - startPosition.y) >1)
+        {
+            return false;
+        }
+        else
+        {
+            followingPath = null;
+            return true;
+        }
 
     }
 
     public virtual void StandardMove()
     {
 
+    }
+
+
+    public virtual bool ViewPlayer()
+    {
+        return false;
     }
 
     Vector2 Separate()
@@ -151,15 +180,13 @@ public class Enemy : MonoBehaviour
         if (indexPath >= followingPath.Count)
         {
             rigidbody2D.velocity = Vector2.zero;
-            indexPath = 0;
-            followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
             return;
         }
 
         rigidbody2D.velocity = followingPath[indexPath] - (Vector2)transform.position;
         rigidbody2D.velocity = rigidbody2D.velocity.normalized * 2f;
 
-        if (Vector2.Distance(transform.position, followingPath[indexPath]) < 0.2f)
+        if (Vector2.Distance(transform.position, followingPath[indexPath]) < 0.1f)
         {
             indexPath++;
         }
@@ -194,7 +221,10 @@ public class Enemy : MonoBehaviour
         foreach (Vector2 node in followingPath)
         {
             Gizmos.color = Color.green;
-
+            if (node == followingPath[indexPath])
+            {
+                Gizmos.color = Color.yellow;
+            }
             Gizmos.DrawWireSphere(node, 0.1f);
             
         }

@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class isInNextRoom : Leaf
 {
-    private TreeGenerator context;
-    public isInNextRoom(TreeGenerator context)
-    {
-        this.context = context;
-    }
-
+    private Context context;
+    
     public override BTNodeStatus OnBehave(BehaviourState state)
     {
-        if (context.me.StartRoom.neighboursRooms.Contains(context.mapScript.GetRoom(Vector2Int.RoundToInt(context.me.transform.position))))
+        context = (Context)state;
+        if (context.me.StartRoom.neighboursRooms.Contains(context.mapScript.GetRoom(Vector2Int.RoundToInt(new Vector2(context.me.transform.position.x - 0.5f, context.me.transform.position.y - 0.5f)))))
             return BTNodeStatus.SUCCESS;
         else
             return BTNodeStatus.FAILURE;

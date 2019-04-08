@@ -72,7 +72,7 @@ public class Penguin : MonoBehaviour
                 separateForce *= 0.5f;
                 fleeForce *= 2f;
                 */
-                Vector2 newForce = (seekForce * 2 + separateForce * 1 + fleeForce * 3)/6;
+                Vector2 newForce = (seekForce * 2 + separateForce * 1 + fleeForce * 5)/8;
 
                 rigidbody2D.AddForce(newForce);
                 
@@ -80,9 +80,19 @@ public class Penguin : MonoBehaviour
             else
             {
                 Vector2 separateForce = Separate();
+                Vector2 targetPosition = new Vector2();
+                if (false && Vector2.Distance(transform.position + (Vector3)rigidbody2D.velocity.normalized, GameManager.Instance.PlayerScript.transform.position) < Vector2.Distance(transform.position, GameManager.Instance.PlayerScript.transform.position))
+                {
+                    targetPosition = transform.position + (Vector3)rigidbody2D.velocity.normalized;
+                }
+                else
+                {
+                    targetPosition = transform.position;
+                }
+
                 if (timer >= 2)
                 {
-                    followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
+                    followingPath = GameManager.Instance.MapNav.Astar(targetPosition, GameManager.Instance.PlayerScript.transform.position);
                     indexPath = 0;
                     timer = 0;
                 }
@@ -111,12 +121,12 @@ public class Penguin : MonoBehaviour
         {
             rigidbody2D.velocity = Vector2.zero;
             indexPath = 0;
-            followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
+            followingPath = GameManager.Instance.MapNav.Astar((Vector2)transform.position, GameManager.Instance.PlayerScript.transform.position);
             return;
         }
 
         rigidbody2D.velocity = followingPath[indexPath] - (Vector2)transform.position;
-        rigidbody2D.velocity = rigidbody2D.velocity.normalized * 2f;
+        rigidbody2D.velocity = rigidbody2D.velocity.normalized * 5f;
 
         if (Vector2.Distance(transform.position, followingPath[indexPath]) < 0.5f)
         {
@@ -264,7 +274,7 @@ public class Penguin : MonoBehaviour
         Vector3 position = transform.position;
 
         Gizmos.color = Color.white;
-        //Gizmos.DrawWireSphere(position, viewRadius);
+        Gizmos.DrawWireSphere(position, detectRadius);
         /*
         Gizmos.color = Color.gray;
         Gizmos.DrawWireSphere(position, arrivalRadius);

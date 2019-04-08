@@ -5,19 +5,20 @@ using UnityEngine;
 public class GoBackRoom : Leaf
 {
 
-    private TreeGenerator context;
-    public GoBackRoom(TreeGenerator context)
-    {
-        this.context = context;
-    }
+    private Context context;
+    
 
     public override BTNodeStatus OnBehave(BehaviourState state)
     {
-        context.me.GoBackRoom();
-
-        // TODO - perhaps should test success of the actual attack and return failure if we missed
-
-        return BTNodeStatus.SUCCESS;
+        context = (Context)state;
+        if (context.me.GoBackRoom())
+        {
+            return BTNodeStatus.SUCCESS;
+        }
+        else
+        {
+            return BTNodeStatus.RUNNING;
+        }
     }
 
     public override void OnReset()

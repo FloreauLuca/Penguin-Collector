@@ -8,7 +8,6 @@ using UnityEngine;
 public class SO_Enemy : ScriptableObject
 {
     public GameObject enemyPrefab;
-    public Sprite enemySprite;
     public AnimatorController animator;
 
 
@@ -23,7 +22,6 @@ public class SO_Enemy : ScriptableObject
         GameObject enemy = Instantiate(enemyPrefab, position, Quaternion.identity);
         enemy.GetComponent<Enemy>().SoEnemy = this;
         enemy.GetComponent<Enemy>().Region = room;
-        enemy.GetComponentInChildren<SpriteRenderer>().sprite = enemySprite;
 
         return enemy;
     }

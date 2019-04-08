@@ -6,7 +6,7 @@ public class Selector : Composite
 {
     private int currentChild = 0;
 
-    public Selector(BTNode[] nodes) : base(nodes)
+    public Selector(params BTNode[] nodes) : base(nodes)
     {
 
     }

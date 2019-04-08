@@ -15,6 +15,8 @@ public class Repeater : Decorator
         {
             Reset();
             child.Reset();
+
+            //Debug.Log("Repeater");
         }
         return BTNodeStatus.SUCCESS;
     }

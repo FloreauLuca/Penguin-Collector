@@ -81,6 +81,8 @@ public class CellularAutomata : MonoBehaviour
 
     private Cell[,] mapOfCells;
 
+    public Cell[,] MapOfCells => mapOfCells;
+
     //private List<List<Cell>> regionOfCell;
     //private List<List<Cell>> roomOfCell;
     private List<Region> regionList;
@@ -178,7 +180,6 @@ public class CellularAutomata : MonoBehaviour
         GenerateCube();
         yield return null;
 
-        GameManager.Instance.MapNav.Initialize(mapOfCells, roomList);
         
         GameManager.Instance.MapLoaded();
 
@@ -190,7 +191,7 @@ public class CellularAutomata : MonoBehaviour
         
         for (int i = 0; i < nbSeal; i++)
         {
-            GenerateSeal();
+            GenerateWalrus();
         }
 
         for (int i = 0; i < nbChest; i++)
@@ -202,6 +203,8 @@ public class CellularAutomata : MonoBehaviour
         {
             GeneratePenguin();
         }
+
+        GameManager.Instance.MapNav.Initialize(mapOfCells, roomList);
 
     }
 
@@ -827,25 +830,22 @@ public class CellularAutomata : MonoBehaviour
             Vector2Int newPosition = GetSpawn(spawningRoom);
             if (newPosition != Vector2Int.zero)
             {
+                GameObject penguin = Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
                 Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
                 Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
                 Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
                 Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
-                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
-
-                enemies[1].Instantiate(new Vector2(newPosition.x + 1 + 0.5f, newPosition.y + 0.5f), GetRegion(newPosition));
-
+                GameObject bear = enemies[1].Instantiate(new Vector2(newPosition.x + 1 + 0.5f, newPosition.y + 0.5f), GetRegion(newPosition));
+                bear.GetComponent<Bear>().ConnectedPenguin = penguin.GetComponent<Penguin>();
             }
-
             mapOfCells[newPosition.x, newPosition.y].occuped = true;
             spawningRoom.occuped = true;
         }
     }
 
 
-    void GenerateSeal()
+    void GenerateWalrus()
     {
-        BoundsInt boundsEnemy = new BoundsInt(-2, -2, 0, 5, 5, 1);
         Room spawningRoom = new Room();
 
         for (int i = 0; i < priorityRoomList.Count; i++)
@@ -861,9 +861,8 @@ public class CellularAutomata : MonoBehaviour
         {
             Vector2Int newPosition = GetSpawn(spawningRoom);
 
-            enemies[0].Instantiate(new Vector2(newPosition.x + 1 + 0.5f, newPosition.y + 0.5f), GetRegion(newPosition));
-
-            mapOfCells[newPosition.x, newPosition.y].occuped = true;
+            enemies[0].Instantiate(new Vector2(newPosition.x + 0.5f, newPosition.y + 0.5f), GetRegion(newPosition));
+            
             spawningRoom.occuped = true;
         }
     }
@@ -1032,7 +1031,15 @@ public class CellularAutomata : MonoBehaviour
 
     public Room GetRoom(Vector2Int position)
     {
-        return roomList[mapOfCells[position.x, position.y].room];
+        if (GetRoomIndex(position) >= 0)
+        {
+            return roomList[mapOfCells[position.x, position.y].room];
+        }
+        else
+        {
+            Debug.Log("Room not found  " + GetRoomIndex(position) + "; " + position);
+            return null;
+        }
     }
 
 

@@ -4,29 +4,23 @@ using UnityEngine;
 
 public class isInView : Leaf
 {
-    private TreeGenerator context;
-    private Vector2 point;
-    private float radius;
-    public isInView(Vector2 point, float radius, TreeGenerator context)
-    {
-        this.point = point;
-        this.radius = radius;
-        this.context = context;
-    }
+
+
+    private Context context;
 
     public override BTNodeStatus OnBehave(BehaviourState state)
     {
-
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(point, radius);
-        foreach (Collider2D collider in colliders)
+        context = (Context)state;
+        if (context.me.ViewPlayer())
         {
-            if (collider.CompareTag("Player"))
-            {
-                return BTNodeStatus.SUCCESS;
-            }
-        }
+            return BTNodeStatus.SUCCESS;
 
-        return BTNodeStatus.FAILURE;
+        }
+        else
+        {
+            return BTNodeStatus.FAILURE;
+        }
+        
     }
 
     public override void OnReset()

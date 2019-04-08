@@ -85,9 +85,10 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Mathf.Abs(Input.GetAxisRaw("Horizontal"))>0)
+        if (Mathf.Abs(Input.GetAxisRaw("Horizontal"))> Mathf.Abs(Input.GetAxisRaw("Vertical")))
         {
             direction = Vector2.right * Input.GetAxis("Horizontal") * playerSpeed;
+            orientation = Vector2.zero;
             orientation = Vector2.right * Input.GetAxisRaw("Horizontal");
             if (Input.GetAxis("Horizontal") > 0)
             {
@@ -97,9 +98,10 @@ public class Player : MonoBehaviour
                 animator.SetInteger("Direction", 3);
 
             }
-        } else if (Mathf.Abs(Input.GetAxisRaw("Vertical")) > 0)
+        } else if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) < Mathf.Abs(Input.GetAxisRaw("Vertical")))
         {
             direction = Vector2.up * Input.GetAxis("Vertical") * playerSpeed;
+            orientation = Vector2.zero;
             orientation = Vector2.up * Input.GetAxisRaw("Vertical");
             if (Input.GetAxis("Vertical") > 0)
             {

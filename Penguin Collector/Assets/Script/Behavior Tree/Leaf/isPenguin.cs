@@ -5,11 +5,9 @@ using UnityEngine;
 public class isPenguin : Leaf
 {
     
-    private TreeGenerator context;
     private Penguin penguin;
-    public isPenguin(TreeGenerator context, Penguin penguin)
+    public isPenguin(Penguin penguin)
     {
-        this.context = context;
         this.penguin = penguin;
     }
 

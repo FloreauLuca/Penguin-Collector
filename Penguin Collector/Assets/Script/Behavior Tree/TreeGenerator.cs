@@ -2,71 +2,99 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TreeGenerator : MonoBehaviour
+
+public class Context : BehaviourState
 {
     public Enemy me;
     public CellularAutomata mapScript;
     public MapNavigation mapNav;
 
-
-    BTNode behaviourTree;
-
-    void Start()
+    public Context(Enemy me, CellularAutomata mapScript, MapNavigation mapNav)
     {
-        behaviourTree = CreateBehaviourTree();
-
+        this.me = me;
+        this.mapScript = mapScript;
+        this.mapNav = mapNav;
     }
+}
 
+
+public class TreeGenerator : MonoBehaviour
+{
+    private float timer = 0;
+    public BTNode behaviourTree;
+
+    public Context behaviourState;
+   
     void FixedUpdate()
     {
-        behaviourTree.Behave(myBehaviourContext);
+        if (timer >= 0)
+        {
+            if (behaviourTree != null)
+            {
+                behaviourTree.Behave(behaviourState);
+            }
+            else
+            {
+                Debug.Log("behavior not init");
+            }
+
+            timer = 0;
+        }
+        else
+        {
+            timer += Time.deltaTime;
+        }
+        
     }
 
-    BTNode CreateBehaviourTree()
+    public BTNode CreateWalrusBehaviourTree()
     {
-        /*
-        Sequence separate = new Sequence(
-            new TooCloseToEnemy(0.2f),
-            new SetRandomDestination(),
-            new Move());
+        Sequence chaseThePlayer = new Sequence(
+            new isInView(),
+            new FollowPlayer());
 
-        Sequence moveTowardsEnemy = new Sequence("moveTowardsEnemy",
-            new HasEnemy(),
-            new SetMoveTargetToEnemy(),
-            new Inverter(new CanAttackEnemy()),
-            new Inverter(new Succeeder(new Move())));
+        Sequence tooFarFromHome = new Sequence(
+            new Inverter(new isInNextRoom()),
+            new Inverter(new isInRoom()),
+            new GoBackRoom());
 
-        Sequence attackEnemy = new Sequence("attackEnemy",
-            new HasEnemy(),
-            new CanAttackEnemy(),
-            new StopMoving(),
-            new AttackEnemy());
+        Selector fightOrStandard = new Selector(
+            tooFarFromHome,
+            chaseThePlayer,
+            new StandardMove());
 
-        Sequence needHeal = new Sequence("needHeal",
-            new Inverter(new AmIHurt(15)),
-            new AmIHurt(35),
-            new FindClosestHeal(30),
-            new Move());
-
-        Selector chooseEnemy = new Selector("chooseEnemy",
-            new TargetNemesis(),
-            new TargetClosestEnemy(30));
-
-        Sequence collectPowerup = new Sequence("collectPowerup",
-            new FindClosestPowerup(50),
-            new Move());
-
-        Selector fightOrFlight = new Selector("fightOrFlight",
-            new Inverter(new Succeeder(chooseEnemy)),
-            separate,
-            needHeal,
-            moveTowardsEnemy,
-            attackEnemy);
-            */
-        Repeater repeater = new Repeater(new StandardMove(this));
+        Repeater repeater = new Repeater(fightOrStandard);
 
         return repeater;
+
+    }
+
+    public BTNode CreateBearBehaviourTree(Penguin connectedPenguin)
+    {
         
+        Sequence protect = new Sequence(
+            new Inverter(new isInView()),
+            new isPenguin(connectedPenguin),
+            new Inverter(new isInRoom()),
+            new GoBackRoom());
+
+        Selector penguinOrInView = new Selector(
+            new Inverter(new isPenguin(connectedPenguin)),
+            new isInView());
+
+        Sequence chaseOrNot= new Sequence(
+            penguinOrInView,
+            new FollowPlayer());
+
+        Selector fightOrProtected = new Selector(
+            protect,
+            chaseOrNot,
+            new StandardMove());
+            
+        Repeater repeater = new Repeater(fightOrProtected);
+
+        return repeater;
+
     }
 
 }

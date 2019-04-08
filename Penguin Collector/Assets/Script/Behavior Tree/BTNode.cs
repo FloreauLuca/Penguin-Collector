@@ -20,7 +20,7 @@ public abstract class BTNode
     public virtual BTNodeStatus Behave(BehaviourState state)
     {
         BTNodeStatus retNodeStatus = OnBehave(state);
-        /*
+        
         if (debug)
         {
             string result = "Unknow";
@@ -44,7 +44,7 @@ public abstract class BTNode
 
         if (retNodeStatus != BTNodeStatus.RUNNING)
             Reset();
-        */
+        
         return retNodeStatus;
 
     }
