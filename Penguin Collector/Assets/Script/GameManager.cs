@@ -10,16 +10,13 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     private Player playerScript;
-
     public Player PlayerScript
     {
         get { return playerScript; }
         set { playerScript = value; }
     }
-    
 
     private CellularAutomata mapScript;
-
     public CellularAutomata MapScript
     {
         get { return mapScript; }
@@ -27,12 +24,19 @@ public class GameManager : MonoBehaviour
     }
 
     private MapNavigation mapNav;
-
     public MapNavigation MapNav
     {
         get { return mapNav; }
         set { mapNav = value; }
     }
+
+    private UIManager uiManagerScript;
+    public UIManager UiManagerScript
+    {
+        get { return uiManagerScript; }
+        set { uiManagerScript = value; }
+    }
+
 
     private void OnEnable()
     {
@@ -48,7 +52,7 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetButtonDown("Restart"))
         {
-            SceneManager.LoadScene("Generation");
+            LoadLevel("Generation");
         }
     }
 
@@ -68,7 +72,8 @@ public class GameManager : MonoBehaviour
     {
         playerScript = FindObjectOfType<Player>();
         mapScript = FindObjectOfType<CellularAutomata>();
-        MapNav = FindObjectOfType<MapNavigation>();
+        mapNav = FindObjectOfType<MapNavigation>();
+        uiManagerScript = FindObjectOfType<UIManager>();
     }
 
     private void Awake()

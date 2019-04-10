@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
 {
     private Vector2 direction;
     private Vector2 orientation;
+    private Vector2 inputDirection;
     [SerializeField] private float playerSpeed;
 
     private Rigidbody2D rigidbody2D;
@@ -85,27 +86,38 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Mathf.Abs(Input.GetAxisRaw("Horizontal"))> Mathf.Abs(Input.GetAxisRaw("Vertical")))
+        if (GameManager.Instance.UiManagerScript.Joystick.InputDirection == Vector3.zero)
         {
-            direction = Vector2.right * Input.GetAxis("Horizontal") * playerSpeed;
-            orientation = Vector2.right * (Input.GetAxisRaw("Horizontal") > 0 ? 1 : -1);
-            if (Input.GetAxis("Horizontal") > 0)
+            inputDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        }
+        else
+        {
+            inputDirection = GameManager.Instance.UiManagerScript.Joystick.InputDirection;
+        }
+
+        if (Mathf.Abs(inputDirection.x) > Mathf.Abs(inputDirection.y))
+        {
+            direction = Vector2.right * inputDirection.x * playerSpeed;
+            orientation = Vector2.right * (inputDirection.x > 0 ? 1 : -1);
+            if (inputDirection.x > 0)
             {
                 animator.SetInteger("Direction", 1);
-            } else if (Input.GetAxis("Horizontal") < 0)
+            }
+            else if (inputDirection.x < 0)
             {
                 animator.SetInteger("Direction", 3);
 
             }
-        } else if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) < Mathf.Abs(Input.GetAxisRaw("Vertical")))
+        }
+        else if (Mathf.Abs(inputDirection.x) < Mathf.Abs(inputDirection.y))
         {
-            direction = Vector2.up * Input.GetAxis("Vertical") * playerSpeed;
-            orientation = Vector2.up * (Input.GetAxisRaw("Vertical") > 0 ? 1: -1);
-            if (Input.GetAxis("Vertical") > 0)
+            direction = Vector2.up * inputDirection.y * playerSpeed;
+            orientation = Vector2.up * (inputDirection.y > 0 ? 1 : -1);
+            if (inputDirection.y > 0)
             {
                 animator.SetInteger("Direction", 0);
             }
-            else if (Input.GetAxis("Vertical") < 0)
+            else if (inputDirection.y < 0)
             {
                 animator.SetInteger("Direction", 2);
             }
@@ -114,12 +126,49 @@ public class Player : MonoBehaviour
         {
             direction = Vector2.zero;
         }
-        if (Input.GetButtonDown("Fire"))
+
+        /*
+        if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) > Mathf.Abs(Input.GetAxisRaw("Vertical")))
+            {
+                direction = Vector2.right * Input.GetAxis("Horizontal") * playerSpeed;
+                orientation = Vector2.right * (Input.GetAxisRaw("Horizontal") > 0 ? 1 : -1);
+                if (Input.GetAxis("Horizontal") > 0)
+                {
+                    animator.SetInteger("Direction", 1);
+                }
+                else if (Input.GetAxis("Horizontal") < 0)
+                {
+                    animator.SetInteger("Direction", 3);
+
+                }
+            }
+            else if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) < Mathf.Abs(Input.GetAxisRaw("Vertical")))
+            {
+                direction = Vector2.up * Input.GetAxis("Vertical") * playerSpeed;
+                orientation = Vector2.up * (Input.GetAxisRaw("Vertical") > 0 ? 1 : -1);
+                if (Input.GetAxis("Vertical") > 0)
+                {
+                    animator.SetInteger("Direction", 0);
+                }
+                else if (Input.GetAxis("Vertical") < 0)
+                {
+                    animator.SetInteger("Direction", 2);
+                }
+            }
+            else
+            {
+                direction = Vector2.zero;
+            }
+        */
+
+
+
+        if (Input.GetButtonDown("Fire") || GameManager.Instance.UiManagerScript.Button.OnButtonDown)
         {
             fireTimer = 0;
         }
 
-        if (Input.GetButton("Fire"))
+        if (Input.GetButton("Fire") || GameManager.Instance.UiManagerScript.Button.ButtonDown)
         {
             direction = Vector2.zero;
             
