@@ -15,12 +15,19 @@ public class Walrus : Enemy
 
     }
 
+    public override bool GoBackRoom()
+    {
+        lastStandardPosition = transform.position;
+        return base.GoBackRoom();
+    }
+
+
     public override void StandardMove()
     {
         rigidbody2D.velocity = lastStandardPosition - (Vector2)transform.position;
         rigidbody2D.velocity = rigidbody2D.velocity.normalized * 2f;
 
-        if (Vector2.Distance(transform.position, lastStandardPosition) < 0.1f)
+        if (Vector2.Distance(transform.position, lastStandardPosition) < 0.2f)
         {
             BoundsInt boundsPenguin = new BoundsInt(-1, -1, 0, 3, 3, 1);
             Vector2Int newPosition = Vector2Int.RoundToInt(new Vector2(lastStandardPosition.x - 0.5f, lastStandardPosition.y - 0.5f));

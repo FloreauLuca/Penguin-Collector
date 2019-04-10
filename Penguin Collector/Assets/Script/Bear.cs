@@ -13,7 +13,7 @@ public class Bear : Enemy
     }
 
     private List<Vector2> standardMove;
-    private int indexStandardMove;
+    private int indexStandardMove = 0;
 
     // Start is called before the first frame update
     protected override void Start()
@@ -45,7 +45,7 @@ public class Bear : Enemy
         rigidbody2D.velocity = standardMove[indexStandardMove] - (Vector2)transform.position;
         rigidbody2D.velocity = rigidbody2D.velocity.normalized * 2f;
 
-        if (Vector2.Distance(transform.position, standardMove[indexStandardMove]) < 0.1f)
+        if (Vector2.Distance(transform.position, standardMove[indexStandardMove]) < 0.2f)
         {
             indexStandardMove++;
         }

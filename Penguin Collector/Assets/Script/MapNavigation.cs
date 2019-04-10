@@ -38,7 +38,7 @@ public class MapNavigation : MonoBehaviour
     {
         
     }
-    /*
+    
     public void Initialize(Cell[,] cells, List<Room> rooms)
     {
         nodes = new Node[mapScript.MapSize * 2 + 1, mapScript.MapSize * 2 + 1];
@@ -121,8 +121,8 @@ public class MapNavigation : MonoBehaviour
             }
         }
     }
-    */
-
+    
+    /*
     public void Initialize(Cell[,] cells, List<Room> rooms)
     {
         nodes = new Node[mapScript.MapSize, mapScript.MapSize];
@@ -198,6 +198,8 @@ public class MapNavigation : MonoBehaviour
             }
         }
     }
+    */
+
     public Node GetNode(Vector2 pos)
     {
         Node returnNode = null;
@@ -228,7 +230,7 @@ public class MapNavigation : MonoBehaviour
 
         while (openList.Count > 0 && --crashValue > 0)
         {
-            openList = openList.OrderBy(x => x.currentCost + Vector2.Distance(x.pos, goalNode.pos) * 5).ToList(); // WTF ?????
+            openList = openList.OrderBy(x => x.currentCost + Vector2.Distance(x.pos, goalNode.pos) * 5).ToList();
 
             Node currentNode = openList[0];
             openList.RemoveAt(0);

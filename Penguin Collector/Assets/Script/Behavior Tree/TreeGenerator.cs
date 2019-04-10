@@ -27,7 +27,7 @@ public class TreeGenerator : MonoBehaviour
    
     void FixedUpdate()
     {
-        if (timer >= 0)
+        if (timer >= 0.1f)
         {
             if (behaviourTree != null)
             {
@@ -49,13 +49,17 @@ public class TreeGenerator : MonoBehaviour
 
     public BTNode CreateWalrusBehaviourTree()
     {
+        Selector chasingOrNot = new Selector(
+            new Inverter(new isInNextRoom()),
+            new Inverter(new isInView()));
+
         Sequence chaseThePlayer = new Sequence(
             new isInView(),
             new FollowPlayer());
 
         Sequence tooFarFromHome = new Sequence(
-            new Inverter(new isInNextRoom()),
             new Inverter(new isInRoom()),
+            chasingOrNot,
             new GoBackRoom());
 
         Selector fightOrStandard = new Selector(

@@ -98,6 +98,7 @@ public class GameManager : MonoBehaviour
         playerScript.transform.position = newPosition;
         playerScript.CurrentRegion = mapScript.GetRegion(newPositionInt);
         playerScript.CurrentRoom = mapScript.GetRoomIndex(newPositionInt);
+        mapScript.SetPlayerRoom(playerScript.CurrentRoom);
     }
 
     public void QuitGame()

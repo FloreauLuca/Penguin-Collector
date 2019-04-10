@@ -62,15 +62,16 @@ public class CellularAutomata : MonoBehaviour
     [SerializeField] private int nbSeal = 10;
     [SerializeField] private int nbChest = 10;
     [SerializeField] private int nbPenguin = 10;
-    [SerializeField] private TileBase tile;
+    [SerializeField] private TileBase tileIce;
+    [SerializeField] private TileBase tileWater;
     [SerializeField] private SO_Enemy[] enemies;
     [SerializeField] private GameObject chestPrefab;
     [SerializeField] private GameObject penguinPrefab;
     [SerializeField] private GameObject boatPrefab;
     [SerializeField] private Tilemap tilemapIce;
-    public Tilemap TilemapIce => tilemapIce;
+    [SerializeField] private Tilemap tilemapWater;
 
-    
+
     [SerializeField] private int seed;
 
 
@@ -790,14 +791,20 @@ public class CellularAutomata : MonoBehaviour
             {
                 if (mapOfCells[x, y].isAlive)
                 {
-
-                    tilemapIce.SetTile(new Vector3Int(x, y, 0), tile);
+                    tilemapIce.SetTile(new Vector3Int(x, y, 0), tileIce);
+                }
+                else
+                {
+                    tilemapWater.SetTile(new Vector3Int(x, y, 0), tileWater);
                 }
             }
         }
     }
 
-
+    public void SetPlayerRoom(int indexRoom)
+    {
+        roomList[indexRoom].occuped = true;
+    }
 
     void GenerateBear()
     {
@@ -860,9 +867,11 @@ public class CellularAutomata : MonoBehaviour
         if (spawningRoom.cells.Count > 0)
         {
             Vector2Int newPosition = GetSpawn(spawningRoom);
+            if (newPosition != Vector2Int.zero)
+            {
+                enemies[0].Instantiate(new Vector2(newPosition.x + 0.5f, newPosition.y + 0.5f), GetRegion(newPosition));
+            }
 
-            enemies[0].Instantiate(new Vector2(newPosition.x + 0.5f, newPosition.y + 0.5f), GetRegion(newPosition));
-            
             spawningRoom.occuped = true;
         }
     }
@@ -972,7 +981,7 @@ public class CellularAutomata : MonoBehaviour
             }
 
         }
-        Debug.LogError("Non spawn found");
+        Debug.LogError("Non spawn found" + room.cells[0].position);
         return Vector2Int.zero;
     }
 

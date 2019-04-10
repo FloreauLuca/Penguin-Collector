@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxSpeed: 100
   maxForce: 50
-  viewRadius: 10
+  viewRadius: 5
   arrivalRadius: 0.5
   separateRadius: 0.25
   group: 1

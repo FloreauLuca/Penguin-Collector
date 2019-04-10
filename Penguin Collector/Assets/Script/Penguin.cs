@@ -80,19 +80,14 @@ public class Penguin : MonoBehaviour
             else
             {
                 Vector2 separateForce = Separate();
-                Vector2 targetPosition = new Vector2();
-                if (false && Vector2.Distance(transform.position + (Vector3)rigidbody2D.velocity.normalized, GameManager.Instance.PlayerScript.transform.position) < Vector2.Distance(transform.position, GameManager.Instance.PlayerScript.transform.position))
-                {
-                    targetPosition = transform.position + (Vector3)rigidbody2D.velocity.normalized;
-                }
-                else
-                {
-                    targetPosition = transform.position;
-                }
-
+                
                 if (timer >= 2)
                 {
-                    followingPath = GameManager.Instance.MapNav.Astar(targetPosition, GameManager.Instance.PlayerScript.transform.position);
+                    if (Vector2.Distance(GameManager.Instance.MapNav.GetNode(transform.position).pos, transform.position) > 0.3f)
+                    {
+                        transform.position = GameManager.Instance.MapNav.GetNode(transform.position).pos;
+                    }
+                    followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
                     indexPath = 0;
                     timer = 0;
                 }
@@ -121,6 +116,10 @@ public class Penguin : MonoBehaviour
         {
             rigidbody2D.velocity = Vector2.zero;
             indexPath = 0;
+            if (Vector2.Distance(GameManager.Instance.MapNav.GetNode(transform.position).pos, transform.position) > 0.5f)
+            {
+                transform.position = GameManager.Instance.MapNav.GetNode(transform.position).pos;
+            }
             followingPath = GameManager.Instance.MapNav.Astar((Vector2)transform.position, GameManager.Instance.PlayerScript.transform.position);
             return;
         }

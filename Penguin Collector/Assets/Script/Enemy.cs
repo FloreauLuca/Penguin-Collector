@@ -76,7 +76,7 @@ public class Enemy : MonoBehaviour
             
             FollowPath();
             
-            rigidbody2D.AddForce(separateForce);
+            rigidbody2D.AddForce(separateForce * 5);
         }
            animator.SetFloat("velX", rigidbody2D.velocity.x);
            animator.SetFloat("velY", rigidbody2D.velocity.y);
@@ -89,44 +89,41 @@ public class Enemy : MonoBehaviour
             other.gameObject.GetComponent<Player>().Hit(soEnemy.damage);
         }
     }
-    
 
-    public void FollowPlayer()
+    private void OnCollisionStay2D(Collision2D other)
     {
-        Vector2 targetPosition = new Vector2();
-        if (false && Vector2.Distance(transform.position + (Vector3) rigidbody2D.velocity.normalized, GameManager.Instance.PlayerScript.transform.position) < Vector2.Distance(transform.position, GameManager.Instance.PlayerScript.transform.position))
+        if (other.gameObject.CompareTag("Player"))
         {
-            targetPosition = transform.position + (Vector3) rigidbody2D.velocity.normalized;
-        }
-        else
-        {
-            targetPosition = transform.position;
-        }
-        if (followingPath != GameManager.Instance.MapNav.Astar(targetPosition, GameManager.Instance.PlayerScript.transform.position))
-        {
-            followingPath = GameManager.Instance.MapNav.Astar(targetPosition, GameManager.Instance.PlayerScript.transform.position);
-            indexPath = 0;
+            other.gameObject.GetComponent<Player>().Hit(soEnemy.damage);
         }
     }
 
-    public bool GoBackRoom()
-    {
-        Vector2 targetPosition = new Vector2();
-        if (false && Vector2.Distance(transform.position + (Vector3)rigidbody2D.velocity.normalized, startPosition) < Vector2.Distance(transform.position, startPosition))
-        {
-            targetPosition = transform.position + (Vector3)rigidbody2D.velocity.normalized;
-        }
-        else
-        {
-            targetPosition = transform.position;
-        }
 
-        if (followingPath != GameManager.Instance.MapNav.Astar(targetPosition, startPosition))
+    public void FollowPlayer()
+    {
+        if (Vector2.Distance(GameManager.Instance.MapNav.GetNode(transform.position).pos, transform.position) > 0.5f)
         {
-            followingPath = GameManager.Instance.MapNav.Astar(targetPosition, startPosition);
-            indexPath = 0;
+            transform.position = GameManager.Instance.MapNav.GetNode(transform.position).pos;
         }
-        if (Mathf.Abs(transform.position.x - startPosition.x) > 1 && Mathf.Abs(transform.position.y - startPosition.y) >1)
+        if (followingPath != GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position))
+        {
+            followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
+            indexPath = 1;
+        }
+    }
+
+    public virtual bool GoBackRoom()
+    {
+        if (Vector2.Distance(GameManager.Instance.MapNav.GetNode(transform.position).pos, transform.position) > 0.5f)
+        {
+            transform.position = GameManager.Instance.MapNav.GetNode(transform.position).pos;
+        }
+        if (followingPath != GameManager.Instance.MapNav.Astar(transform.position, startPosition))
+        {
+            followingPath = GameManager.Instance.MapNav.Astar(transform.position, startPosition);
+            indexPath = 1;
+        }
+        if (Mathf.Abs(transform.position.x - startPosition.x) > 0.5f && Mathf.Abs(transform.position.y - startPosition.y) >0.5f)
         {
             return false;
         }
@@ -218,6 +215,7 @@ public class Enemy : MonoBehaviour
     void OnDrawGizmos()
     {
         if (followingPath == null) return;
+        if (followingPath.Count < indexPath) return;
         foreach (Vector2 node in followingPath)
         {
             Gizmos.color = Color.green;

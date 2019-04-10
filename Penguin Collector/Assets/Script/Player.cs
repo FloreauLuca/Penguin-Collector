@@ -88,8 +88,7 @@ public class Player : MonoBehaviour
         if (Mathf.Abs(Input.GetAxisRaw("Horizontal"))> Mathf.Abs(Input.GetAxisRaw("Vertical")))
         {
             direction = Vector2.right * Input.GetAxis("Horizontal") * playerSpeed;
-            orientation = Vector2.zero;
-            orientation = Vector2.right * Input.GetAxisRaw("Horizontal");
+            orientation = Vector2.right * (Input.GetAxisRaw("Horizontal") > 0 ? 1 : -1);
             if (Input.GetAxis("Horizontal") > 0)
             {
                 animator.SetInteger("Direction", 1);
@@ -101,8 +100,7 @@ public class Player : MonoBehaviour
         } else if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) < Mathf.Abs(Input.GetAxisRaw("Vertical")))
         {
             direction = Vector2.up * Input.GetAxis("Vertical") * playerSpeed;
-            orientation = Vector2.zero;
-            orientation = Vector2.up * Input.GetAxisRaw("Vertical");
+            orientation = Vector2.up * (Input.GetAxisRaw("Vertical") > 0 ? 1: -1);
             if (Input.GetAxis("Vertical") > 0)
             {
                 animator.SetInteger("Direction", 0);
@@ -125,7 +123,7 @@ public class Player : MonoBehaviour
         {
             direction = Vector2.zero;
             
-            
+            Debug.Log(orientation);
             if (weaponType == WeaponType.HARPOON)
             {
                 if (fireTimer == 0)

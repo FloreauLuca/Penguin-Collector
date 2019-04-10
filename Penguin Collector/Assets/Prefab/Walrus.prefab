@@ -127,10 +127,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   soEnemy: {fileID: 11400000, guid: 9238d346eaba8a34cb7d12e2d55bf2ad, type: 2}
-  separateRadius: 1
+  separateRadius: 5
   maxSpeed: 10
   maxForce: 10
-  viewRadius: 10
+  viewRadius: 5
 --- !u!1 &7027167852509404221
 GameObject:
   m_ObjectHideFlags: 0
