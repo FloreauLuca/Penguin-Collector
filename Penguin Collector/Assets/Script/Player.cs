@@ -172,7 +172,6 @@ public class Player : MonoBehaviour
         {
             direction = Vector2.zero;
             
-            Debug.Log(orientation);
             if (weaponType == WeaponType.HARPOON)
             {
                 if (fireTimer == 0)
@@ -223,17 +222,20 @@ public class Player : MonoBehaviour
             life -= hitDamage;
         }
 
-        if (life < 0)
+        if (life <= 0)
         {
             spriteRenderer.color = new Color(1, 1, 1, 0f);
             invincibility = true;
             rigidbody2D.velocity = Vector2.zero;
+            GameManager.Instance.GameOver();
             this.enabled = false;
         }
         else
         {
             StartCoroutine(Invincibility());
         }
+       
+        GameManager.Instance.UiManagerScript.DisplayLife((int)life);
     }
 
     IEnumerator Invincibility()

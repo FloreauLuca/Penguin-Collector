@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
-using UnityEditor.Animations;
 
 
 public class Enemy : MonoBehaviour

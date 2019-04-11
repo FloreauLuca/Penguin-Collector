@@ -15,5 +15,5 @@ MonoBehaviour:
   enemyPrefab: {fileID: 9194182062204917938, guid: ba3e33c04cc3b194e96ba47e7ef65e28,
     type: 3}
   animator: {fileID: 9100000, guid: b75137762fafde640a2860093f8d3a27, type: 2}
-  damage: 2
-  life: 5
+  damage: 1
+  life: 2

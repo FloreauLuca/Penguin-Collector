@@ -1,14 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
-using UnityEditor.Animations;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Enemy")]
 public class SO_Enemy : ScriptableObject
 {
     public GameObject enemyPrefab;
-    public AnimatorController animator;
+    public RuntimeAnimatorController animator;
 
 
     [Header("Statistique")]

@@ -182,31 +182,38 @@ public class CellularAutomata : MonoBehaviour
         yield return null;
 
         
-        GameManager.Instance.MapLoaded();
+        GameManager.Instance.SpawnPlayer();
+        yield return null;
 
 
         for (int i = 0; i < nbBear; i++)
         {
             GenerateBear();
         }
-        
+        yield return null;
+
         for (int i = 0; i < nbSeal; i++)
         {
             GenerateWalrus();
         }
+        yield return null;
 
         for (int i = 0; i < nbChest; i++)
         {
             GenerateChest();
         }
+        yield return null;
 
         for (int i = 0; i < nbPenguin; i++)
         {
             GeneratePenguin();
         }
+        yield return null;
 
         GameManager.Instance.MapNav.Initialize(mapOfCells, roomList);
+        yield return null;
 
+        GameManager.Instance.MapLoaded();
     }
 
     void Init()

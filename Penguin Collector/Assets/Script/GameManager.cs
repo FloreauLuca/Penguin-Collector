@@ -37,6 +37,13 @@ public class GameManager : MonoBehaviour
         set { uiManagerScript = value; }
     }
 
+    private int currentScore = 0;
+    public int CurrentScore
+    {
+        get { return currentScore; }
+        set { currentScore = value; }
+    }
+
 
     private void OnEnable()
     {
@@ -52,7 +59,7 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetButtonDown("Restart"))
         {
-            LoadLevel("Generation");
+            LoadLevel("GameScene");
         }
     }
 
@@ -96,7 +103,7 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(nameLevel);
     }
 
-    public void MapLoaded()
+    public void SpawnPlayer()
     {
         Vector2Int newPositionInt = mapScript.GetPlayerSpawn();
         Vector2 newPosition = new Vector2(newPositionInt.x + 0.5f, newPositionInt.y + 0.5f);
@@ -104,6 +111,16 @@ public class GameManager : MonoBehaviour
         playerScript.CurrentRegion = mapScript.GetRegion(newPositionInt);
         playerScript.CurrentRoom = mapScript.GetRoomIndex(newPositionInt);
         mapScript.SetPlayerRoom(playerScript.CurrentRoom);
+    }
+
+    public void MapLoaded()
+    {
+        uiManagerScript.LaunchGame();
+    }
+
+    public void GameOver()
+    {
+        uiManagerScript.DisplayGameOver();
     }
 
     public void QuitGame()

@@ -35,8 +35,12 @@ public class Boat : MonoBehaviour
             if (penguinCount > 0)
             {
                 GameManager.Instance.UiManagerScript.AskToBoat();
-
             }
         }
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.Instance.CurrentScore += penguinCount;
     }
 }

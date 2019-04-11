@@ -13,12 +13,13 @@ public class ButtonFire : MonoBehaviour, IPointerUpHandler, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData ped)
     {
-        buttonDown = true;
         onButtonDown = true;
+        Invoke("PointerStayDown", 0.1f);
     }
 
     private void PointerStayDown()
     {
+        buttonDown = true;
         onButtonDown = false;
     }
 

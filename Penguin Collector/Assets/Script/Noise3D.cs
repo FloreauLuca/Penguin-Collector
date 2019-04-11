@@ -126,7 +126,7 @@ public static class Noise {
         return noiseMap;
     }
 }
-
+/*
 [CustomEditor(typeof(Noise3D))]
 public class ObjectBuilderEditor : Editor
 {
@@ -141,5 +141,6 @@ public class ObjectBuilderEditor : Editor
         }
     }
 }
+*/
 
 
