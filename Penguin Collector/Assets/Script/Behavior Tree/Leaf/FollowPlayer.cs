@@ -10,7 +10,7 @@ public class FollowPlayer : Leaf
     public override BTNodeStatus OnBehave(BehaviourState state)
     {
         context = (Context)state;
-        context.me.FollowPlayer();
+        context.me.CurrentEnemyState = Enemy.EnemyState.FOLLOWPLAYER;
 
         // TODO - perhaps should test success of the actual attack and return failure if we missed
 

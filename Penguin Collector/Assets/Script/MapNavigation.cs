@@ -108,7 +108,7 @@ public class MapNavigation : MonoBehaviour
                     if (nodes[x + b.x, y + b.y] == null) continue;
                     if (!nodes[x + b.x, y + b.y].isFree) continue;
 
-                    if (x != b.x && y != b.y)
+                    if (b.x != 0 || b.y != 0)
                     {
                         if (nodes[x, y + b.y] == null) continue;
                         if (!nodes[x, y + b.y].isFree) continue;

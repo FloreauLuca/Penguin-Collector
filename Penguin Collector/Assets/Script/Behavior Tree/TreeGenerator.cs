@@ -8,7 +8,7 @@ public class Context : BehaviourState
     public Enemy me;
     public CellularAutomata mapScript;
     public MapNavigation mapNav;
-
+    public bool debug;
     public Context(Enemy me, CellularAutomata mapScript, MapNavigation mapNav)
     {
         this.me = me;
@@ -22,15 +22,16 @@ public class TreeGenerator : MonoBehaviour
 {
     private float timer = 0;
     public BTNode behaviourTree;
-
+    private bool debug;
     public Context behaviourState;
    
     void FixedUpdate()
     {
-        if (timer >= 0.1f)
+        if (timer >= 1f)
         {
             if (behaviourTree != null)
             {
+                behaviourState.debug = debug;
                 behaviourTree.Behave(behaviourState);
             }
             else

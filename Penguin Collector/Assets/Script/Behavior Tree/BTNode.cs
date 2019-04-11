@@ -16,9 +16,13 @@ public abstract class BehaviourState
 
 public abstract class BTNode
 {
+    private Context context;
     private bool debug = false;
     public virtual BTNodeStatus Behave(BehaviourState state)
     {
+
+        context = (Context)state;
+        debug = context.debug;
         BTNodeStatus retNodeStatus = OnBehave(state);
         
         if (debug)

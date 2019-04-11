@@ -48,9 +48,23 @@ public class Enemy : MonoBehaviour
 
     public Room StartRoom => startRoom;
 
-    private float timer = 1000;
+    private float timer;
 
     protected TreeGenerator treeGenerator;
+
+    public enum EnemyState
+    {
+        STANDARDMOVE,
+        GOBACKROOM,
+        FOLLOWPLAYER
+    }
+
+    protected EnemyState currentEnemyState;
+    public EnemyState CurrentEnemyState
+    {
+        get { return currentEnemyState; }
+        set { currentEnemyState = value; }
+    }
 
     // Start is called before the first frame update
     protected virtual void Start()
@@ -72,12 +86,34 @@ public class Enemy : MonoBehaviour
         {
 
             Vector2 separateForce = Separate();
-            
             FollowPath();
-            
             rigidbody2D.AddForce(separateForce * 5);
         }
-           animator.SetFloat("velX", rigidbody2D.velocity.x);
+
+        if (timer >= 0.1f)
+        {
+            timer = 0;
+            switch (currentEnemyState)
+            {
+                case EnemyState.FOLLOWPLAYER:
+                    FollowPlayer();
+                    break;
+                case EnemyState.GOBACKROOM:
+                    GoBackRoom();
+                    break;
+                case EnemyState.STANDARDMOVE:
+                    StandardMove();
+                    break;
+            }
+        }
+        else
+        {
+            timer += Time.deltaTime;
+        }
+
+
+
+        animator.SetFloat("velX", rigidbody2D.velocity.x);
            animator.SetFloat("velY", rigidbody2D.velocity.y);
     }
 

@@ -10,7 +10,8 @@ public class StandardMove : Leaf
     public override BTNodeStatus OnBehave(BehaviourState state)
     {
         context = (Context)state;
-        context.me.StandardMove();
+        context.me.CurrentEnemyState = Enemy.EnemyState.STANDARDMOVE;
+
 
         // TODO - perhaps should test success of the actual attack and return failure if we missed
 

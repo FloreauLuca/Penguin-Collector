@@ -11,6 +11,7 @@ public class GoBackRoom : Leaf
     public override BTNodeStatus OnBehave(BehaviourState state)
     {
         context = (Context)state;
+        context.me.CurrentEnemyState = Enemy.EnemyState.GOBACKROOM;
         if (context.me.GoBackRoom())
         {
             return BTNodeStatus.SUCCESS;
