@@ -96,10 +96,25 @@ public class Enemy : MonoBehaviour
             switch (currentEnemyState)
             {
                 case EnemyState.FOLLOWPLAYER:
-                    FollowPlayer();
+                    if (followingPath != null)
+                    {
+                        FollowPath();
+                    }
+                    else
+                    {
+                        FollowPlayer();
+                    }
+
                     break;
                 case EnemyState.GOBACKROOM:
-                    GoBackRoom();
+                    if (followingPath != null)
+                    {
+                        FollowPath();
+                    }
+                    else
+                    {
+                        GoBackRoom();
+                    }
                     break;
                 case EnemyState.STANDARDMOVE:
                     StandardMove();
@@ -250,7 +265,7 @@ public class Enemy : MonoBehaviour
     void OnDrawGizmos()
     {
         if (followingPath == null) return;
-        if (followingPath.Count < indexPath) return;
+        if (followingPath.Count <= indexPath) return;
         foreach (Vector2 node in followingPath)
         {
             Gizmos.color = Color.green;

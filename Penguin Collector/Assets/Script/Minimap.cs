@@ -22,17 +22,23 @@ public class Minimap : MonoBehaviour
     {
         if (Input.GetButtonDown("Map"))
         {
-            if (minimap.activeSelf)
-            {
-                camera.orthographicSize = 50;
-                map.SetActive(true);
-                minimap.SetActive(false);
-            } else
-            {
-                camera.orthographicSize = 10;
-                map.SetActive(false);
-                minimap.SetActive(true);
-            }
+            FullScreen();
+        }
+    }
+
+    public void FullScreen()
+    {
+        if (minimap.activeSelf)
+        {
+            camera.orthographicSize = 50;
+            map.SetActive(true);
+            minimap.SetActive(false);
+        }
+        else
+        {
+            camera.orthographicSize = 10;
+            map.SetActive(false);
+            minimap.SetActive(true);
         }
     }
 }

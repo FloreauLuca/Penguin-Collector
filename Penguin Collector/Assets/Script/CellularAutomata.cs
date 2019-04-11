@@ -106,6 +106,7 @@ public class CellularAutomata : MonoBehaviour
             seed = Random.Range(0, 1000000000);
         }
         Random.InitState(seed);
+        Debug.Log(seed);
 
         debug = new List<Vector2>();
 
@@ -166,24 +167,29 @@ public class CellularAutomata : MonoBehaviour
         }
 
         yield return null;
-        
+        GameManager.Instance.UiManagerScript.DisplayLoad(10);
 
         GenerateRegion();
         yield return null;
-        
+        GameManager.Instance.UiManagerScript.DisplayLoad(20);
+
 
         ConnectClosestRegions();
         yield return null;
+        GameManager.Instance.UiManagerScript.DisplayLoad(30);
 
         GenerateRoom();
         yield return null;
+        GameManager.Instance.UiManagerScript.DisplayLoad(40);
 
         GenerateCube();
         yield return null;
+        GameManager.Instance.UiManagerScript.DisplayLoad(50);
 
-        
+
         GameManager.Instance.SpawnPlayer();
         yield return null;
+        GameManager.Instance.UiManagerScript.DisplayLoad(60);
 
 
         for (int i = 0; i < nbBear; i++)
@@ -191,12 +197,14 @@ public class CellularAutomata : MonoBehaviour
             GenerateBear();
         }
         yield return null;
+        GameManager.Instance.UiManagerScript.DisplayLoad(70);
 
         for (int i = 0; i < nbSeal; i++)
         {
             GenerateWalrus();
         }
         yield return null;
+        GameManager.Instance.UiManagerScript.DisplayLoad(80);
 
         for (int i = 0; i < nbChest; i++)
         {
@@ -212,6 +220,7 @@ public class CellularAutomata : MonoBehaviour
 
         GameManager.Instance.MapNav.Initialize(mapOfCells, roomList);
         yield return null;
+        GameManager.Instance.UiManagerScript.DisplayLoad(100);
 
         GameManager.Instance.MapLoaded();
     }
@@ -838,7 +847,7 @@ public class CellularAutomata : MonoBehaviour
             }
         }
 
-        Debug.Log(spawningRoom.cells[0].position);
+        //Debug.Log(spawningRoom.cells[0].position);
         if (spawningRoom.cells.Count > 0)
         {
             Vector2Int newPosition = GetSpawn(spawningRoom);

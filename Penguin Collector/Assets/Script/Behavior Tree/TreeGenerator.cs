@@ -27,7 +27,7 @@ public class TreeGenerator : MonoBehaviour
    
     void FixedUpdate()
     {
-        if (timer >= 1f)
+        if (timer >= 0.5f)
         {
             if (behaviourTree != null)
             {

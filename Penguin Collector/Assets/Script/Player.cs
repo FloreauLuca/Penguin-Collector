@@ -160,51 +160,54 @@ public class Player : MonoBehaviour
                 direction = Vector2.zero;
             }
         */
-
-
-
-        if (Input.GetButtonDown("Fire") || GameManager.Instance.UiManagerScript.Button.OnButtonDown)
+        
+        if (Input.GetButton("Fire") || GameManager.Instance.UiManagerScript.Button.ButtonDown)
+        {
+            Fire();
+        }
+        else
         {
             fireTimer = 0;
         }
+    }
 
-        if (Input.GetButton("Fire") || GameManager.Instance.UiManagerScript.Button.ButtonDown)
+    public void Fire()
+    {
+        direction = Vector2.zero;
+
+        if (weaponType == WeaponType.HARPOON)
         {
-            direction = Vector2.zero;
-            
-            if (weaponType == WeaponType.HARPOON)
+            if (fireTimer == 0)
             {
-                if (fireTimer == 0)
-                {
-                    Instantiate(harpoonBallPrefab, transform.position + Vector3.up * 0.17f, Quaternion.Euler(0, 0, Mathf.Rad2Deg * (Mathf.Acos(orientation.y) * Mathf.Abs(orientation.y) - Mathf.Asin(orientation.x) * Mathf.Abs(orientation.x))));
-                    fireTimer++;
-                    animator.SetTrigger("Attack");
-                }
-            } else if (weaponType == WeaponType.AK)
+                Instantiate(harpoonBallPrefab, transform.position + Vector3.up * 0.17f, Quaternion.Euler(0, 0, Mathf.Rad2Deg * (Mathf.Acos(orientation.y) * Mathf.Abs(orientation.y) - Mathf.Asin(orientation.x) * Mathf.Abs(orientation.x))));
+                fireTimer++;
+                animator.SetTrigger("Attack");
+            }
+        }
+        else if (weaponType == WeaponType.AK)
+        {
+            if (fireTimer == 0)
             {
-                if (fireTimer == 0)
-                {
-                    Instantiate(akBallPrefab, transform.position + Vector3.up * 0.17f, Quaternion.Euler(0, 0, Mathf.Rad2Deg * (Mathf.Acos(orientation.y) * Mathf.Abs(orientation.y) - Mathf.Asin(orientation.x) * Mathf.Abs(orientation.x))));
-                    fireTimer++;
-                    animator.SetTrigger("Attack");
-                }
-                else if (fireTimer == 10)
-                {
-                    fireTimer = 0;
-                }
-                else
-                {
-                    fireTimer++;
-                }
+                Instantiate(akBallPrefab, transform.position + Vector3.up * 0.17f, Quaternion.Euler(0, 0, Mathf.Rad2Deg * (Mathf.Acos(orientation.y) * Mathf.Abs(orientation.y) - Mathf.Asin(orientation.x) * Mathf.Abs(orientation.x))));
+                fireTimer++;
+                animator.SetTrigger("Attack");
+            }
+            else if (fireTimer == 10)
+            {
+                fireTimer = 0;
             }
             else
             {
+                fireTimer++;
+            }
+        }
+        else
+        {
 
-                if (fireTimer == 0)
-                {
-                    fireTimer++;
-                    animator.SetTrigger("Attack");
-                }
+            if (fireTimer == 0)
+            {
+                fireTimer++;
+                animator.SetTrigger("Attack");
             }
         }
     }
@@ -233,9 +236,9 @@ public class Player : MonoBehaviour
         else
         {
             StartCoroutine(Invincibility());
+            GameManager.Instance.UiManagerScript.DisplayLife((int)life);
         }
        
-        GameManager.Instance.UiManagerScript.DisplayLife((int)life);
     }
 
     IEnumerator Invincibility()

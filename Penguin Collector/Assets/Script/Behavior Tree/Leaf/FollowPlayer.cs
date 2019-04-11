@@ -11,6 +11,7 @@ public class FollowPlayer : Leaf
     {
         context = (Context)state;
         context.me.CurrentEnemyState = Enemy.EnemyState.FOLLOWPLAYER;
+        context.me.FollowPlayer();
 
         // TODO - perhaps should test success of the actual attack and return failure if we missed
 

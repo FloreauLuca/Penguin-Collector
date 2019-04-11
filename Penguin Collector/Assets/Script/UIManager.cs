@@ -16,15 +16,21 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private GameObject scorePanel;
     [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI gameOverscoreText;
     [SerializeField] private GameObject miniMap;
     [SerializeField] private GameObject lifePanel;
-    [SerializeField] private GameObject GameOverPanel;
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private TextMeshProUGUI loadingText;
+    [SerializeField] private TextMeshProUGUI highScoreText;
+    [SerializeField] private GameObject newHighScore;
+
 
 
     // Start is called before the first frame update
     void Start()
     {
         DisplayScore();
+        Mobile();
     }
 
     // Update is called once per frame
@@ -67,6 +73,12 @@ public class UIManager : MonoBehaviour
     public void DisplayScore()
     {
         scoreText.text = GameManager.Instance.CurrentScore.ToString();
+        highScoreText.text = GameManager.Instance.HighScore.ToString();
+    }
+
+    public void DisplayLoad(int percent)
+    {
+        loadingText.text = "Loading ... " + percent + " / 100";
     }
 
     public void Menu()
@@ -76,6 +88,22 @@ public class UIManager : MonoBehaviour
 
     public void DisplayGameOver()
     {
-        GameOverPanel.SetActive(true);
+        gameOverPanel.SetActive(true);
+        gameOverscoreText.text = GameManager.Instance.CurrentScore.ToString();
+        newHighScore.SetActive(true);
     }
+
+#if UNITY_ANDROID
+
+    void Mobile()
+    {
+        joystick.gameObject.SetActive(true);
+        button.gameObject.SetActive(true);
+    }
+
+
+#endif
+
+
+
 }
