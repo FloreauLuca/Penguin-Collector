@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b351bb31ddf487841854e496181bd7e1, type: 3}
+  m_Name: Walrus
+  m_EditorClassIdentifier: 
+  enemyPrefab: {fileID: 1014032467224353143, guid: 6919a4cfae152fe41a6ab1ba42455604,
+    type: 3}
+  animator: {fileID: 9100000, guid: 14fc340bd05cb604ca53022bed171be2, type: 2}
+  damage: 1
+  life: 1

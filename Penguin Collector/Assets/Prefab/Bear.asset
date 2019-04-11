@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b351bb31ddf487841854e496181bd7e1, type: 3}
+  m_Name: Bear
+  m_EditorClassIdentifier: 
+  enemyPrefab: {fileID: 9194182062204917938, guid: ba3e33c04cc3b194e96ba47e7ef65e28,
+    type: 3}
+  animator: {fileID: 9100000, guid: b75137762fafde640a2860093f8d3a27, type: 2}
+  damage: 1
+  life: 2
