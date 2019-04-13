@@ -22,6 +22,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private TextMeshProUGUI loadingText;
     [SerializeField] private TextMeshProUGUI highScoreText;
+    [SerializeField] private GameObject levelComplete;
     [SerializeField] private GameObject newHighScore;
 
 
@@ -30,7 +31,10 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         DisplayScore();
+#if UNITY_ANDROID
         Mobile();
+#endif
+
     }
 
     // Update is called once per frame
@@ -42,6 +46,7 @@ public class UIManager : MonoBehaviour
     public void AskToBoat()
     {
         panelBoat.SetActive(true);
+        GameManager.Instance.PlayerScript.enabled = false;
     }
 
     public void BoatAccept()
@@ -53,6 +58,7 @@ public class UIManager : MonoBehaviour
     public void BoatDecline()
     {
         panelBoat.SetActive(false);
+        GameManager.Instance.PlayerScript.enabled = true;
     }
 
     public void DisplayLife(int life)
@@ -93,7 +99,6 @@ public class UIManager : MonoBehaviour
         newHighScore.SetActive(true);
     }
 
-#if UNITY_ANDROID
 
     void Mobile()
     {
@@ -101,8 +106,10 @@ public class UIManager : MonoBehaviour
         button.gameObject.SetActive(true);
     }
 
-
-#endif
+    void LevelComplete()
+    {
+        levelComplete.SetActive(true);
+    }
 
 
 

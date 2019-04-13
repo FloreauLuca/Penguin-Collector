@@ -22,7 +22,7 @@ public class TreeGenerator : MonoBehaviour
 {
     private float timer = 0;
     public BTNode behaviourTree;
-    private bool debug;
+    [SerializeField] private bool debug;
     public Context behaviourState;
    
     void FixedUpdate()
