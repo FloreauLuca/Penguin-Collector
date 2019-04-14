@@ -108,7 +108,7 @@ public class MapNavigation : MonoBehaviour
                     if (nodes[x + b.x, y + b.y] == null) continue;
                     if (!nodes[x + b.x, y + b.y].isFree) continue;
 
-                    if (b.x != 0 || b.y != 0)
+                    if (b.x != 0 && b.y != 0)
                     {
                         if (nodes[x, y + b.y] == null) continue;
                         if (!nodes[x, y + b.y].isFree) continue;
@@ -219,10 +219,10 @@ public class MapNavigation : MonoBehaviour
         return returnNode;
     }
 
-    public List<Vector2> Astar(Vector2 startPosition, Vector2 goalPosition)
+    public List<Vector2> Astar(Vector2 goalPosition, Vector2 startPosition)
     {
-        Node startingNode = GetNode(goalPosition);
-        Node goalNode = GetNode(startPosition);
+        Node startingNode = GetNode(startPosition);
+        Node goalNode = GetNode(goalPosition);
         List<Node> openList = new List<Node> { startingNode };
         List<Node> closedList = new List<Node>();
         List<Vector2> path = new List<Vector2>();

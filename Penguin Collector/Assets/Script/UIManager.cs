@@ -76,19 +76,25 @@ public class UIManager : MonoBehaviour
     void Update()
     {
 #if UNITY_ANDROID
-        if ((Input.deviceOrientation == DeviceOrientation.Portrait || debug)  && currentFormat != portrait)
+        if ((Input.deviceOrientation == DeviceOrientation.Portrait)  && currentFormat != portrait)
         {
             currentFormat.global.SetActive(false);
             currentFormat = portrait;
             currentFormat.global.SetActive(true);
             Mobile();
         }
-        else if ((Input.deviceOrientation == DeviceOrientation.LandscapeLeft || Input.deviceOrientation == DeviceOrientation.LandscapeRight || !debug) && currentFormat == portrait)
+        else if ((Input.deviceOrientation == DeviceOrientation.LandscapeLeft || Input.deviceOrientation == DeviceOrientation.LandscapeRight || Input.deviceOrientation == DeviceOrientation.Unknown) && currentFormat == portrait)
         {
             currentFormat.global.SetActive(false);
             currentFormat = landscape;
             currentFormat.global.SetActive(true);
             Mobile();
+        }
+#else
+        {
+            currentFormat.global.SetActive(false);
+            currentFormat = landscape;
+            currentFormat.global.SetActive(true);
         }
 #endif
     }
@@ -139,11 +145,14 @@ public class UIManager : MonoBehaviour
 
     public void DisplayLife(int life)
     {
-        for (int i = life; i < currentFormat.lifePoint.Length; i++)
+        if (life >= 0)
         {
-            portrait.lifePoint[i].SetActive(false);
+            for (int i = life; i < currentFormat.lifePoint.Length; i++)
+            {
+                portrait.lifePoint[i].SetActive(false);
 
-            landscape.lifePoint[i].SetActive(false);
+                landscape.lifePoint[i].SetActive(false);
+            }
         }
     }
 

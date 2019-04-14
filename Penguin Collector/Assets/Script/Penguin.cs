@@ -43,6 +43,8 @@ public class Penguin : MonoBehaviour
 
 
     private float timer = 1000;
+
+    private float debugTimer = 0;
     // Start is called before the first frame update
     void Start()
     {
@@ -88,6 +90,7 @@ public class Penguin : MonoBehaviour
                         transform.position = GameManager.Instance.MapNav.GetNode(transform.position).pos;
                     }
                     followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
+                    debugTimer = 0;
                     indexPath = 0;
                     timer = 0;
                 }
@@ -111,6 +114,10 @@ public class Penguin : MonoBehaviour
 
     public void FollowPath()
     {
+        if (debugTimer > 5)
+        {
+            transform.position = GameManager.Instance.MapNav.GetNode(transform.position).pos;
+        }
 
         if (indexPath >= followingPath.Count)
         {
@@ -121,6 +128,7 @@ public class Penguin : MonoBehaviour
                 transform.position = GameManager.Instance.MapNav.GetNode(transform.position).pos;
             }
             followingPath = GameManager.Instance.MapNav.Astar((Vector2)transform.position, GameManager.Instance.PlayerScript.transform.position);
+            debugTimer = 0;
             return;
         }
 
@@ -130,7 +138,10 @@ public class Penguin : MonoBehaviour
         if (Vector2.Distance(transform.position, followingPath[indexPath]) < 0.5f)
         {
             indexPath++;
+            debugTimer = 0;
         }
+
+        debugTimer += Time.deltaTime;
 
     }
 
