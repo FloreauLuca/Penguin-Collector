@@ -1,31 +1,45 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+[Serializable]
+public class SerializeObject
+{
+    public GameObject miniMap;
+    public GameObject map;
+
+    public GameObject panelBoat;
+
+    public MobileJoystick joystick;
+    public ButtonFire button;
+
+    public GameObject lifePanel;
+    public GameObject[] lifePoint;
+
+    public GameObject scorePanel;
+    public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI loadingText;
+    public TextMeshProUGUI highScoreText;
+
+    public GameObject gameOverPanel;
+    public TextMeshProUGUI gameOverscoreText;
+    public GameObject newHighScore;
+
+    public GameObject levelComplete;
+
+    public GameObject global;
+}
+
+
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] private GameObject panelBoat;
+    [SerializeField] private SerializeObject portrait;
+    [SerializeField] private SerializeObject landscape;
 
-    [SerializeField] private MobileJoystick joystick;
-    public MobileJoystick Joystick => joystick;
-    [SerializeField] private ButtonFire button;
-    public ButtonFire Button => button;
-
-    [SerializeField] private GameObject[] lifePoint;
-
-    [SerializeField] private GameObject scorePanel;
-    [SerializeField] private TextMeshProUGUI scoreText;
-    [SerializeField] private TextMeshProUGUI gameOverscoreText;
-    [SerializeField] private GameObject miniMap;
-    [SerializeField] private GameObject lifePanel;
-    [SerializeField] private GameObject gameOverPanel;
-    [SerializeField] private TextMeshProUGUI loadingText;
-    [SerializeField] private TextMeshProUGUI highScoreText;
-    [SerializeField] private GameObject levelComplete;
-    [SerializeField] private GameObject newHighScore;
-
-
+    private SerializeObject currentFormat;
+    public SerializeObject CurrentFormat => currentFormat;
 
     // Start is called before the first frame update
     void Start()
@@ -40,51 +54,62 @@ public class UIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+#if UNITY_ANDROID
+        if (Input.deviceOrientation == DeviceOrientation.Portrait && currentFormat != portrait)
+        {
+            currentFormat = portrait;
+            currentFormat.global.SetActive(true);
+        }
+        else
+        {
+            currentFormat = landscape;
+            currentFormat.global.SetActive(true);
+        }
+#endif
     }
 
     public void AskToBoat()
     {
-        panelBoat.SetActive(true);
+        currentFormat.panelBoat.SetActive(true);
         GameManager.Instance.PlayerScript.enabled = false;
     }
 
     public void BoatAccept()
     {
-        panelBoat.SetActive(false);
+        currentFormat.panelBoat.SetActive(false);
         GameManager.Instance.LoadLevel("GameScene");
     }
 
     public void BoatDecline()
     {
-        panelBoat.SetActive(false);
+        currentFormat.panelBoat.SetActive(false);
         GameManager.Instance.PlayerScript.enabled = true;
     }
 
     public void DisplayLife(int life)
     {
-        for (int i = life; i < lifePoint.Length; i++)
+        for (int i = life; i < currentFormat.lifePoint.Length; i++)
         {
-            lifePoint[i].SetActive(false);
+            currentFormat.lifePoint[i].SetActive(false);
         }
     }
 
     public void LaunchGame()
     {
-        scorePanel.SetActive(false);
-        miniMap.SetActive(true);
-        lifePanel.SetActive(true);
+        currentFormat.scorePanel.SetActive(false);
+        currentFormat.miniMap.SetActive(true);
+        currentFormat.lifePanel.SetActive(true);
     }
 
     public void DisplayScore()
     {
-        scoreText.text = GameManager.Instance.CurrentScore.ToString();
-        highScoreText.text = GameManager.Instance.HighScore.ToString();
+        currentFormat.scoreText.text = GameManager.Instance.CurrentScore.ToString();
+        currentFormat.highScoreText.text = GameManager.Instance.HighScore.ToString();
     }
 
     public void DisplayLoad(int percent)
     {
-        loadingText.text = "Loading ... " + percent + " / 100";
+        currentFormat.loadingText.text = "Loading ... " + percent + " / 100";
     }
 
     public void Menu()
@@ -94,21 +119,21 @@ public class UIManager : MonoBehaviour
 
     public void DisplayGameOver()
     {
-        gameOverPanel.SetActive(true);
-        gameOverscoreText.text = GameManager.Instance.CurrentScore.ToString();
-        newHighScore.SetActive(true);
+        currentFormat.gameOverPanel.SetActive(true);
+        currentFormat.gameOverscoreText.text = GameManager.Instance.CurrentScore.ToString();
+        currentFormat.newHighScore.SetActive(true);
     }
 
 
     void Mobile()
     {
-        joystick.gameObject.SetActive(true);
-        button.gameObject.SetActive(true);
+        currentFormat.joystick.gameObject.SetActive(true);
+        currentFormat.button.gameObject.SetActive(true);
     }
 
     void LevelComplete()
     {
-        levelComplete.SetActive(true);
+        currentFormat.levelComplete.SetActive(true);
     }
 
 

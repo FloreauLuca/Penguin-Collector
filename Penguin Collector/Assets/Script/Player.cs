@@ -86,13 +86,13 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GameManager.Instance.UiManagerScript.Joystick.InputDirection == Vector3.zero)
+        if (GameManager.Instance.UiManagerScript.CurrentFormat.joystick.InputDirection == Vector3.zero)
         {
             inputDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         }
         else
         {
-            inputDirection = GameManager.Instance.UiManagerScript.Joystick.InputDirection;
+            inputDirection = GameManager.Instance.UiManagerScript.CurrentFormat.joystick.InputDirection;
         }
 
         if (Mathf.Abs(inputDirection.x) > Mathf.Abs(inputDirection.y))
@@ -166,7 +166,7 @@ public class Player : MonoBehaviour
             }
         */
         
-        if (Input.GetButton("Fire") || GameManager.Instance.UiManagerScript.Button.ButtonDown)
+        if (Input.GetButton("Fire") || GameManager.Instance.UiManagerScript.CurrentFormat.button.ButtonDown)
         {
             Fire();
         }

@@ -7,9 +7,6 @@ public class Minimap : MonoBehaviour
 {
     private Player player;
     private Camera camera;
-    [SerializeField] private GameObject minimap;
-    [SerializeField] private GameObject map;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -28,17 +25,17 @@ public class Minimap : MonoBehaviour
 
     public void FullScreen()
     {
-        if (minimap.activeSelf)
+        if (GameManager.Instance.UiManagerScript.CurrentFormat.miniMap.activeSelf)
         {
             camera.orthographicSize = 50;
-            map.SetActive(true);
-            minimap.SetActive(false);
+            GameManager.Instance.UiManagerScript.CurrentFormat.map.SetActive(true);
+            GameManager.Instance.UiManagerScript.CurrentFormat.miniMap.SetActive(false);
         }
         else
         {
             camera.orthographicSize = 10;
-            map.SetActive(false);
-            minimap.SetActive(true);
+            GameManager.Instance.UiManagerScript.CurrentFormat.map.SetActive(false);
+            GameManager.Instance.UiManagerScript.CurrentFormat.miniMap.SetActive(true);
         }
     }
 }
