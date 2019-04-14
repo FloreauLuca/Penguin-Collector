@@ -37,6 +37,7 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] private SerializeObject portrait;
     [SerializeField] private SerializeObject landscape;
+    [SerializeField] private bool debug;
 
     private SerializeObject currentFormat;
     public SerializeObject CurrentFormat => currentFormat;
@@ -44,10 +45,30 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        DisplayScore();
 #if UNITY_ANDROID
-        Mobile();
+        if ((Input.deviceOrientation == DeviceOrientation.Portrait|| debug)  && currentFormat != portrait)
+        {
+            landscape.global.SetActive(false);
+            currentFormat = portrait;
+            currentFormat.global.SetActive(true);
+            Mobile();
+        }
+        else if ((Input.deviceOrientation == DeviceOrientation.LandscapeLeft || Input.deviceOrientation == DeviceOrientation.LandscapeRight || !debug) && currentFormat == portrait)
+        {
+            portrait.global.SetActive(false);
+            currentFormat = landscape;
+            currentFormat.global.SetActive(true);
+            Mobile();
+        }
+        else
+        {
+            portrait.global.SetActive(false);
+            currentFormat = landscape;
+            currentFormat.global.SetActive(true);
+            Mobile();
+        }
 #endif
+        DisplayScore();
 
     }
 
@@ -55,34 +76,64 @@ public class UIManager : MonoBehaviour
     void Update()
     {
 #if UNITY_ANDROID
-        if (Input.deviceOrientation == DeviceOrientation.Portrait && currentFormat != portrait)
+        if ((Input.deviceOrientation == DeviceOrientation.Portrait || debug)  && currentFormat != portrait)
         {
+            currentFormat.global.SetActive(false);
             currentFormat = portrait;
             currentFormat.global.SetActive(true);
+            Mobile();
         }
-        else
+        else if ((Input.deviceOrientation == DeviceOrientation.LandscapeLeft || Input.deviceOrientation == DeviceOrientation.LandscapeRight || !debug) && currentFormat == portrait)
         {
+            currentFormat.global.SetActive(false);
             currentFormat = landscape;
             currentFormat.global.SetActive(true);
+            Mobile();
         }
 #endif
     }
 
+    public void FullScreen()
+    {
+        if (GameManager.Instance.UiManagerScript.CurrentFormat.miniMap.activeSelf)
+        {
+            portrait.map.SetActive(true);
+            portrait.miniMap.SetActive(false);
+
+            landscape.map.SetActive(true);
+            landscape.miniMap.SetActive(false);
+        }
+        else
+        {
+            portrait.map.SetActive(false);
+            portrait.miniMap.SetActive(true);
+
+            landscape.map.SetActive(false);
+            landscape.miniMap.SetActive(true);
+        }
+    }
+
     public void AskToBoat()
     {
-        currentFormat.panelBoat.SetActive(true);
+        portrait.panelBoat.SetActive(true);
+
+        landscape.panelBoat.SetActive(true);
         GameManager.Instance.PlayerScript.enabled = false;
     }
 
     public void BoatAccept()
     {
-        currentFormat.panelBoat.SetActive(false);
+        portrait.panelBoat.SetActive(false);
+
+        landscape.panelBoat.SetActive(false);
         GameManager.Instance.LoadLevel("GameScene");
     }
 
     public void BoatDecline()
     {
-        currentFormat.panelBoat.SetActive(false);
+        portrait.panelBoat.SetActive(false);
+
+        landscape.panelBoat.SetActive(false);
         GameManager.Instance.PlayerScript.enabled = true;
     }
 
@@ -90,26 +141,38 @@ public class UIManager : MonoBehaviour
     {
         for (int i = life; i < currentFormat.lifePoint.Length; i++)
         {
-            currentFormat.lifePoint[i].SetActive(false);
+            portrait.lifePoint[i].SetActive(false);
+
+            landscape.lifePoint[i].SetActive(false);
         }
     }
 
     public void LaunchGame()
     {
-        currentFormat.scorePanel.SetActive(false);
-        currentFormat.miniMap.SetActive(true);
-        currentFormat.lifePanel.SetActive(true);
+        portrait.scorePanel.SetActive(false);
+        portrait.miniMap.SetActive(true);
+        portrait.lifePanel.SetActive(true);
+
+        landscape.scorePanel.SetActive(false);
+        landscape.miniMap.SetActive(true);
+        landscape.lifePanel.SetActive(true);
     }
 
     public void DisplayScore()
     {
-        currentFormat.scoreText.text = GameManager.Instance.CurrentScore.ToString();
-        currentFormat.highScoreText.text = GameManager.Instance.HighScore.ToString();
+        Debug.Log(currentFormat.global);
+        portrait.scoreText.text = GameManager.Instance.CurrentScore.ToString();
+        portrait.highScoreText.text = GameManager.Instance.HighScore.ToString();
+
+        landscape.scoreText.text = GameManager.Instance.CurrentScore.ToString();
+        landscape.highScoreText.text = GameManager.Instance.HighScore.ToString();
     }
 
     public void DisplayLoad(int percent)
     {
-        currentFormat.loadingText.text = "Loading ... " + percent + " / 100";
+        portrait.loadingText.text = "Loading ... " + percent + " / 100";
+
+        landscape.loadingText.text = "Loading ... " + percent + " / 100";
     }
 
     public void Menu()
@@ -119,21 +182,29 @@ public class UIManager : MonoBehaviour
 
     public void DisplayGameOver()
     {
-        currentFormat.gameOverPanel.SetActive(true);
-        currentFormat.gameOverscoreText.text = GameManager.Instance.CurrentScore.ToString();
-        currentFormat.newHighScore.SetActive(true);
+        portrait.gameOverPanel.SetActive(true);
+        portrait.gameOverscoreText.text = GameManager.Instance.CurrentScore.ToString();
+        portrait.newHighScore.SetActive(true);
+
+        landscape.gameOverPanel.SetActive(true);
+        landscape.gameOverscoreText.text = GameManager.Instance.CurrentScore.ToString();
+        landscape.newHighScore.SetActive(true);
     }
 
 
     void Mobile()
     {
-        currentFormat.joystick.gameObject.SetActive(true);
-        currentFormat.button.gameObject.SetActive(true);
+        portrait.joystick.gameObject.SetActive(true);
+        portrait.button.gameObject.SetActive(true);
+
+        landscape.joystick.gameObject.SetActive(true);
+        landscape.button.gameObject.SetActive(true);
     }
 
     void LevelComplete()
     {
-        currentFormat.levelComplete.SetActive(true);
+        portrait.levelComplete.SetActive(true);
+        landscape.levelComplete.SetActive(true);
     }
 
 

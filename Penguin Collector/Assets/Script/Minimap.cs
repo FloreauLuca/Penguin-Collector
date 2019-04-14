@@ -25,17 +25,15 @@ public class Minimap : MonoBehaviour
 
     public void FullScreen()
     {
-        if (GameManager.Instance.UiManagerScript.CurrentFormat.miniMap.activeSelf)
+        GameManager.Instance.UiManagerScript.FullScreen();
+        if (camera.orthographicSize == 10)
         {
             camera.orthographicSize = 50;
-            GameManager.Instance.UiManagerScript.CurrentFormat.map.SetActive(true);
-            GameManager.Instance.UiManagerScript.CurrentFormat.miniMap.SetActive(false);
         }
         else
         {
             camera.orthographicSize = 10;
-            GameManager.Instance.UiManagerScript.CurrentFormat.map.SetActive(false);
-            GameManager.Instance.UiManagerScript.CurrentFormat.miniMap.SetActive(true);
         }
     }
+
 }

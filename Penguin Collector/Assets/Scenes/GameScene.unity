@@ -3534,6 +3534,7 @@ MonoBehaviour:
     newHighScore: {fileID: 1346267497}
     levelComplete: {fileID: 1236816859}
     global: {fileID: 1030118587}
+  debug: 1
 --- !u!1 &815497003
 GameObject:
   m_ObjectHideFlags: 0
@@ -6515,7 +6516,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 810443069}
         m_MethodName: Menu
         m_Mode: 1
         m_Arguments:
@@ -6644,7 +6645,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 810443069}
         m_MethodName: BoatAccept
         m_Mode: 1
         m_Arguments:
@@ -8281,7 +8282,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 810443069}
         m_MethodName: BoatDecline
         m_Mode: 1
         m_Arguments:

@@ -178,7 +178,6 @@ public class GameManager : MonoBehaviour
             StreamWriter sw = File.CreateText(fileName);
             sw.Write(saveDataJson);
             sw.Close();
-        Debug.Log(saveDataJson);
     }
 
     private void OnDestroy()
