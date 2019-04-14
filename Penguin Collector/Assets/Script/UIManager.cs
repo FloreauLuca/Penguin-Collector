@@ -1,84 +1,187 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+[Serializable]
+public class SerializeObject
+{
+    public GameObject miniMap;
+    public GameObject map;
+
+    public GameObject panelBoat;
+
+    public MobileJoystick joystick;
+    public ButtonFire button;
+
+    public GameObject lifePanel;
+    public GameObject[] lifePoint;
+
+    public GameObject scorePanel;
+    public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI loadingText;
+    public TextMeshProUGUI highScoreText;
+
+    public GameObject gameOverPanel;
+    public TextMeshProUGUI gameOverscoreText;
+    public GameObject newHighScore;
+
+    public GameObject levelComplete;
+
+    public GameObject global;
+}
+
+
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] private GameObject panelBoat;
+    [SerializeField] private SerializeObject portrait;
+    [SerializeField] private SerializeObject landscape;
+    [SerializeField] private bool debug;
 
-    [SerializeField] private MobileJoystick joystick;
-    public MobileJoystick Joystick => joystick;
-    [SerializeField] private ButtonFire button;
-    public ButtonFire Button => button;
-
-    [SerializeField] private GameObject[] lifePoint;
-
-    [SerializeField] private GameObject scorePanel;
-    [SerializeField] private TextMeshProUGUI scoreText;
-    [SerializeField] private TextMeshProUGUI gameOverscoreText;
-    [SerializeField] private GameObject miniMap;
-    [SerializeField] private GameObject lifePanel;
-    [SerializeField] private GameObject gameOverPanel;
-    [SerializeField] private TextMeshProUGUI loadingText;
-    [SerializeField] private TextMeshProUGUI highScoreText;
-    [SerializeField] private GameObject newHighScore;
-
-
+    private SerializeObject currentFormat;
+    public SerializeObject CurrentFormat => currentFormat;
 
     // Start is called before the first frame update
     void Start()
     {
+#if UNITY_ANDROID
+        if ((Input.deviceOrientation == DeviceOrientation.Portrait|| debug)  && currentFormat != portrait)
+        {
+            landscape.global.SetActive(false);
+            currentFormat = portrait;
+            currentFormat.global.SetActive(true);
+            Mobile();
+        }
+        else if ((Input.deviceOrientation == DeviceOrientation.LandscapeLeft || Input.deviceOrientation == DeviceOrientation.LandscapeRight || !debug) && currentFormat == portrait)
+        {
+            portrait.global.SetActive(false);
+            currentFormat = landscape;
+            currentFormat.global.SetActive(true);
+            Mobile();
+        }
+        else
+        {
+            portrait.global.SetActive(false);
+            currentFormat = landscape;
+            currentFormat.global.SetActive(true);
+            Mobile();
+        }
+#endif
         DisplayScore();
-        Mobile();
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+#if UNITY_ANDROID
+        if ((Input.deviceOrientation == DeviceOrientation.Portrait)  && currentFormat != portrait)
+        {
+            currentFormat.global.SetActive(false);
+            currentFormat = portrait;
+            currentFormat.global.SetActive(true);
+            Mobile();
+        }
+        else if ((Input.deviceOrientation == DeviceOrientation.LandscapeLeft || Input.deviceOrientation == DeviceOrientation.LandscapeRight || Input.deviceOrientation == DeviceOrientation.Unknown) && currentFormat == portrait)
+        {
+            currentFormat.global.SetActive(false);
+            currentFormat = landscape;
+            currentFormat.global.SetActive(true);
+            Mobile();
+        }
+#else
+        {
+            currentFormat.global.SetActive(false);
+            currentFormat = landscape;
+            currentFormat.global.SetActive(true);
+        }
+#endif
+    }
+
+    public void FullScreen()
+    {
+        if (GameManager.Instance.UiManagerScript.CurrentFormat.miniMap.activeSelf)
+        {
+            portrait.map.SetActive(true);
+            portrait.miniMap.SetActive(false);
+
+            landscape.map.SetActive(true);
+            landscape.miniMap.SetActive(false);
+        }
+        else
+        {
+            portrait.map.SetActive(false);
+            portrait.miniMap.SetActive(true);
+
+            landscape.map.SetActive(false);
+            landscape.miniMap.SetActive(true);
+        }
     }
 
     public void AskToBoat()
     {
-        panelBoat.SetActive(true);
+        portrait.panelBoat.SetActive(true);
+
+        landscape.panelBoat.SetActive(true);
+        GameManager.Instance.PlayerScript.enabled = false;
     }
 
     public void BoatAccept()
     {
-        panelBoat.SetActive(false);
+        portrait.panelBoat.SetActive(false);
+
+        landscape.panelBoat.SetActive(false);
         GameManager.Instance.LoadLevel("GameScene");
     }
 
     public void BoatDecline()
     {
-        panelBoat.SetActive(false);
+        portrait.panelBoat.SetActive(false);
+
+        landscape.panelBoat.SetActive(false);
+        GameManager.Instance.PlayerScript.enabled = true;
     }
 
     public void DisplayLife(int life)
     {
-        for (int i = life; i < lifePoint.Length; i++)
+        if (life >= 0)
         {
-            lifePoint[i].SetActive(false);
+            for (int i = life; i < currentFormat.lifePoint.Length; i++)
+            {
+                portrait.lifePoint[i].SetActive(false);
+
+                landscape.lifePoint[i].SetActive(false);
+            }
         }
     }
 
     public void LaunchGame()
     {
-        scorePanel.SetActive(false);
-        miniMap.SetActive(true);
-        lifePanel.SetActive(true);
+        portrait.scorePanel.SetActive(false);
+        portrait.miniMap.SetActive(true);
+        portrait.lifePanel.SetActive(true);
+
+        landscape.scorePanel.SetActive(false);
+        landscape.miniMap.SetActive(true);
+        landscape.lifePanel.SetActive(true);
     }
 
     public void DisplayScore()
     {
-        scoreText.text = GameManager.Instance.CurrentScore.ToString();
-        highScoreText.text = GameManager.Instance.HighScore.ToString();
+        Debug.Log(currentFormat.global);
+        portrait.scoreText.text = GameManager.Instance.CurrentScore.ToString();
+        portrait.highScoreText.text = GameManager.Instance.HighScore.ToString();
+
+        landscape.scoreText.text = GameManager.Instance.CurrentScore.ToString();
+        landscape.highScoreText.text = GameManager.Instance.HighScore.ToString();
     }
 
     public void DisplayLoad(int percent)
     {
-        loadingText.text = "Loading ... " + percent + " / 100";
+        portrait.loadingText.text = "Loading ... " + percent + " / 100";
+
+        landscape.loadingText.text = "Loading ... " + percent + " / 100";
     }
 
     public void Menu()
@@ -88,21 +191,30 @@ public class UIManager : MonoBehaviour
 
     public void DisplayGameOver()
     {
-        gameOverPanel.SetActive(true);
-        gameOverscoreText.text = GameManager.Instance.CurrentScore.ToString();
-        newHighScore.SetActive(true);
+        portrait.gameOverPanel.SetActive(true);
+        portrait.gameOverscoreText.text = GameManager.Instance.CurrentScore.ToString();
+        portrait.newHighScore.SetActive(true);
+
+        landscape.gameOverPanel.SetActive(true);
+        landscape.gameOverscoreText.text = GameManager.Instance.CurrentScore.ToString();
+        landscape.newHighScore.SetActive(true);
     }
 
-#if UNITY_ANDROID
 
     void Mobile()
     {
-        joystick.gameObject.SetActive(true);
-        button.gameObject.SetActive(true);
+        portrait.joystick.gameObject.SetActive(true);
+        portrait.button.gameObject.SetActive(true);
+
+        landscape.joystick.gameObject.SetActive(true);
+        landscape.button.gameObject.SetActive(true);
     }
 
-
-#endif
+    void LevelComplete()
+    {
+        portrait.levelComplete.SetActive(true);
+        landscape.levelComplete.SetActive(true);
+    }
 
 
 

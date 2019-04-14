@@ -104,7 +104,7 @@ public class Enemy : MonoBehaviour
                     {
                         FollowPlayer();
                     }
-
+                    animator.SetBool("nrv", true);
                     break;
                 case EnemyState.GOBACKROOM:
                     if (followingPath != null)
@@ -115,9 +115,13 @@ public class Enemy : MonoBehaviour
                     {
                         GoBackRoom();
                     }
+                    animator.SetBool("nrv", false);
+
                     break;
                 case EnemyState.STANDARDMOVE:
                     StandardMove();
+                    animator.SetBool("nrv", false);
+
                     break;
             }
         }
@@ -128,8 +132,8 @@ public class Enemy : MonoBehaviour
 
 
 
-        animator.SetFloat("velX", rigidbody2D.velocity.x);
-           animator.SetFloat("velY", rigidbody2D.velocity.y);
+        animator.SetFloat("velX", rigidbody2D.velocity.x*10);
+           animator.SetFloat("velY", rigidbody2D.velocity.y*10);
     }
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -173,7 +177,7 @@ public class Enemy : MonoBehaviour
             followingPath = GameManager.Instance.MapNav.Astar(transform.position, startPosition);
             indexPath = 1;
         }
-        if (Mathf.Abs(transform.position.x - startPosition.x) > 0.5f && Mathf.Abs(transform.position.y - startPosition.y) >0.5f)
+        if (Mathf.Abs(transform.position.x - startPosition.x) > 0.5f || Mathf.Abs(transform.position.y - startPosition.y) >0.5f)
         {
             return false;
         }

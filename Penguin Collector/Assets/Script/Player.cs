@@ -86,18 +86,17 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GameManager.Instance.UiManagerScript.Joystick.InputDirection == Vector3.zero)
+        if (GameManager.Instance.UiManagerScript.CurrentFormat.joystick.InputDirection == Vector3.zero)
         {
             inputDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         }
         else
         {
-            inputDirection = GameManager.Instance.UiManagerScript.Joystick.InputDirection;
+            inputDirection = GameManager.Instance.UiManagerScript.CurrentFormat.joystick.InputDirection;
         }
 
         if (Mathf.Abs(inputDirection.x) > Mathf.Abs(inputDirection.y))
         {
-            direction = Vector2.right * inputDirection.x * playerSpeed;
             orientation = Vector2.right * (inputDirection.x > 0 ? 1 : -1);
             if (inputDirection.x > 0)
             {
@@ -111,7 +110,6 @@ public class Player : MonoBehaviour
         }
         else if (Mathf.Abs(inputDirection.x) < Mathf.Abs(inputDirection.y))
         {
-            direction = Vector2.up * inputDirection.y * playerSpeed;
             orientation = Vector2.up * (inputDirection.y > 0 ? 1 : -1);
             if (inputDirection.y > 0)
             {
@@ -122,11 +120,18 @@ public class Player : MonoBehaviour
                 animator.SetInteger("Direction", 2);
             }
         }
+
+        if (inputDirection != Vector2.zero)
+        {
+
+            direction = Vector2.up * inputDirection.y * playerSpeed + Vector2.right * inputDirection.x * playerSpeed;
+        }
         else
         {
             direction = Vector2.zero;
-        }
 
+        }
+        
         /*
         if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) > Mathf.Abs(Input.GetAxisRaw("Vertical")))
             {
@@ -161,7 +166,7 @@ public class Player : MonoBehaviour
             }
         */
         
-        if (Input.GetButton("Fire") || GameManager.Instance.UiManagerScript.Button.ButtonDown)
+        if (Input.GetButton("Fire") || GameManager.Instance.UiManagerScript.CurrentFormat.button.ButtonDown)
         {
             Fire();
         }
@@ -223,8 +228,9 @@ public class Player : MonoBehaviour
         if (!invincibility)
         {
             life -= hitDamage;
+            StartCoroutine(Invincibility());
+            GameManager.Instance.UiManagerScript.DisplayLife((int)life);
         }
-
         if (life <= 0)
         {
             spriteRenderer.color = new Color(1, 1, 1, 0f);
@@ -232,11 +238,6 @@ public class Player : MonoBehaviour
             rigidbody2D.velocity = Vector2.zero;
             GameManager.Instance.GameOver();
             this.enabled = false;
-        }
-        else
-        {
-            StartCoroutine(Invincibility());
-            GameManager.Instance.UiManagerScript.DisplayLife((int)life);
         }
        
     }
