@@ -67,6 +67,13 @@ public class UIManager : MonoBehaviour
             currentFormat.global.SetActive(true);
             Mobile();
         }
+#else
+        if (currentFormat != landscape)
+        {
+            portrait.global.SetActive(false);
+            currentFormat = landscape;
+            currentFormat.global.SetActive(true);
+        }
 #endif
         DisplayScore();
 
@@ -91,6 +98,7 @@ public class UIManager : MonoBehaviour
             Mobile();
         }
 #else
+        if (currentFormat != landscape)
         {
             currentFormat.global.SetActive(false);
             currentFormat = landscape;

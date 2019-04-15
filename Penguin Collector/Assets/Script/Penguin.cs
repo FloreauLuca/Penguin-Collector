@@ -277,9 +277,9 @@ public class Penguin : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (!isRunning) return;
-        //if(isRunning) return;
+        return;
 
+        if (!isRunning) return;
 
         Vector3 position = transform.position;
 

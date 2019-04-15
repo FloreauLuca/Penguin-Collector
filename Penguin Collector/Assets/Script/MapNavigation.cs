@@ -24,7 +24,7 @@ public class Node
 public class MapNavigation : MonoBehaviour
 {
     private Node[,] nodes;
-    private CellularAutomata mapScript;
+    private MapGenerator mapScript;
 
     // Start is called before the first frame update
     void Start()
@@ -308,8 +308,9 @@ public class MapNavigation : MonoBehaviour
 
     void OnDrawGizmos()
     {
+        return;
         if (nodes == null) return;
-        //if (nodes != null) return;
+
         foreach (Node node in nodes)
         {
             if (node == null) continue;

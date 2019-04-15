@@ -6,10 +6,10 @@ using UnityEngine;
 public class Context : BehaviourState
 {
     public Enemy me;
-    public CellularAutomata mapScript;
+    public MapGenerator mapScript;
     public MapNavigation mapNav;
     public bool debug;
-    public Context(Enemy me, CellularAutomata mapScript, MapNavigation mapNav)
+    public Context(Enemy me, MapGenerator mapScript, MapNavigation mapNav)
     {
         this.me = me;
         this.mapScript = mapScript;

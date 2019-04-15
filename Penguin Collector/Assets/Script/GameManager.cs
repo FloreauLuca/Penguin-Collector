@@ -25,8 +25,8 @@ public class GameManager : MonoBehaviour
         set { playerScript = value; }
     }
 
-    private CellularAutomata mapScript;
-    public CellularAutomata MapScript
+    private MapGenerator mapScript;
+    public MapGenerator MapScript
     {
         get { return mapScript; }
         set { mapScript = value; }
@@ -109,7 +109,7 @@ public class GameManager : MonoBehaviour
     private void Setup()
     {
         playerScript = FindObjectOfType<Player>();
-        mapScript = FindObjectOfType<CellularAutomata>();
+        mapScript = FindObjectOfType<MapGenerator>();
         mapNav = FindObjectOfType<MapNavigation>();
         uiManagerScript = FindObjectOfType<UIManager>();
     }

@@ -268,6 +268,8 @@ public class Enemy : MonoBehaviour
 
     void OnDrawGizmos()
     {
+        return;
+
         if (followingPath == null) return;
         if (followingPath.Count <= indexPath) return;
         foreach (Vector2 node in followingPath)

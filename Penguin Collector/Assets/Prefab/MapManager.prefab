@@ -45,28 +45,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapSize: 50
-  cellularIteration: 50
+  cellularIteration: 10
   maxSizeOfRoom: 40
   minSizeOfRoom: 15
   nbBear: 10
   nbSeal: 10
-  nbChest: 0
-  nbPenguin: 0
   tileIce: {fileID: 11400000, guid: 9fac0ba1916f5d646a5071d9ce8abe33, type: 2}
   tileWater: {fileID: 11400000, guid: b775986cc24a0e641a39f211953bbc37, type: 2}
+  tilemapIce: {fileID: 0}
+  tilemapWater: {fileID: 0}
   enemies:
   - {fileID: 11400000, guid: 9238d346eaba8a34cb7d12e2d55bf2ad, type: 2}
   - {fileID: 11400000, guid: 050e92b19f9ed0a4cb14ec62b6b3fa89, type: 2}
   - {fileID: 11400000, guid: e611384c961ce344fad9ef5ca01b9ec0, type: 2}
   - {fileID: 11400000, guid: c455107ac40ad304ab50b7ad549d8e10, type: 2}
-  chestPrefab: {fileID: 7933251697396585496, guid: d531cf36e6b5a5345bf585033d6862ad,
-    type: 3}
   penguinPrefab: {fileID: 2996176794143975346, guid: 3023353920b0db049a5846cd381c7f8c,
     type: 3}
   boatPrefab: {fileID: 6239980297088735005, guid: 0c02299f4b346924191a166b187790de,
     type: 3}
-  tilemapIce: {fileID: 0}
-  tilemapWater: {fileID: 0}
   seed: 0
 --- !u!114 &5910262113908567715
 MonoBehaviour:
