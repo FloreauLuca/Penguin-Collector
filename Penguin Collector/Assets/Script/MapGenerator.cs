@@ -66,7 +66,7 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] private int nbSeal = 10;
 
     //[SerializeField] private int nbChest = 0;
-    //[SerializeField] private int nbPenguin = 0;
+    [SerializeField] private int nbPenguin = 0;
 
     // Affichage du terrain
     [SerializeField] private TileBase tileIce;
@@ -114,6 +114,7 @@ public class MapGenerator : MonoBehaviour
         REGION,
         BRIDGES,
         ROOM,
+        PRIORITYROOM,
         ENEMY,
         MAPNAV
     }
@@ -239,7 +240,9 @@ public class MapGenerator : MonoBehaviour
         GameManager.Instance.UiManagerScript.DisplayLoad(40);
         gizmoState = GizmoState.ROOM;
         yield return null;
-        
+        gizmoState = GizmoState.PRIORITYROOM;
+        yield return null;
+
         // Affichage du terrain
         GenerateCube();
         yield return null;
@@ -943,11 +946,14 @@ public class MapGenerator : MonoBehaviour
             {
                 GameObject penguin = Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
                 penguinList.Add(penguin);
-                // TODO: définir nombre de manchot par camp
-                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
-                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
-                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
-                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
+                if (nbPenguin > 1)
+                {
+                    for (int i = 1; i < nbPenguin; i++)
+                    {
+                        Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
+                    }
+                }
+
                 GameObject bear = enemies[1].Instantiate(new Vector2(newPosition.x + 1 + 0.5f, newPosition.y + 0.5f), GetRegion(newPosition));
                 bear.GetComponent<Bear>().ConnectedPenguin = penguin.GetComponent<Penguin>();
                 bearList.Add(bear);
@@ -1168,7 +1174,19 @@ public class MapGenerator : MonoBehaviour
 
     void OnDrawGizmos()
     {
+        //for (int x = 0; x < mapSize; x++)
+        //{
+        //    for (int y = 0; y < mapSize; y++)
+        //    {
+        //        if (mapOfCells[x, y].room > -1)
+        //        {
 
+        //            Gizmos.color = mapOfCells[x, y].room < 0 ? Color.clear : colorsDebug[mapOfCells[x, y].room % colors.Count];
+        //            Gizmos.DrawCube(new Vector3(x + 0.5f, y + 0.5f, 0), Vector2.one);
+        //        }
+        //    }
+        //}
+        return;
         if (!isRunning) return;
 
         switch (gizmoState)
@@ -1237,6 +1255,16 @@ public class MapGenerator : MonoBehaviour
                             Gizmos.color = mapOfCells[x, y].room < 0 ? Color.clear : colors[mapOfCells[x, y].room % colors.Count];
                             Gizmos.DrawCube(new Vector3(x + 0.5f, y + 0.5f, 0), Vector2.one);
                         }
+                    }
+                }
+                break;
+            case GizmoState.PRIORITYROOM:
+                for (float i = 0; i < priorityRoomList.Count; i++)
+                {
+                    foreach (Cell cell in priorityRoomList[(int)i].cells)
+                    {
+                        Gizmos.color = Color.black * ((priorityRoomList.Count - i) / priorityRoomList.Count);
+                        Gizmos.DrawCube(new Vector3(cell.position.x + 0.5f, cell.position.y + 0.5f, 0), Vector2.one);
                     }
                 }
                 break;

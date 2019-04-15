@@ -155,6 +155,7 @@ public class Enemy : MonoBehaviour
 
     public void FollowPlayer()
     {
+
         if (Vector2.Distance(GameManager.Instance.MapNav.GetNode(transform.position).pos, transform.position) > 0.5f)
         {
             transform.position = GameManager.Instance.MapNav.GetNode(transform.position).pos;
@@ -177,7 +178,7 @@ public class Enemy : MonoBehaviour
             followingPath = GameManager.Instance.MapNav.Astar(transform.position, startPosition);
             indexPath = 1;
         }
-        if (Mathf.Abs(transform.position.x - startPosition.x) > 0.5f || Mathf.Abs(transform.position.y - startPosition.y) >0.5f)
+        if (Mathf.Abs(transform.position.x - startPosition.x) > 1f || Mathf.Abs(transform.position.y - startPosition.y) >1f)
         {
             return false;
         }
@@ -268,8 +269,6 @@ public class Enemy : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        return;
-
         if (followingPath == null) return;
         if (followingPath.Count <= indexPath) return;
         foreach (Vector2 node in followingPath)
