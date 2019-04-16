@@ -71,6 +71,8 @@ public class Player : MonoBehaviour
         AK
     }
 
+    [SerializeField] private AudioClip shot;
+    [SerializeField] private AudioClip pain;
 
 
     // Start is called before the first frame update
@@ -194,6 +196,7 @@ public class Player : MonoBehaviour
             if (fireTimer == 0)
             {
                 Instantiate(akBallPrefab, transform.position + Vector3.up * 0.17f, Quaternion.Euler(0, 0, Mathf.Rad2Deg * (Mathf.Acos(orientation.y) * Mathf.Abs(orientation.y) - Mathf.Asin(orientation.x) * Mathf.Abs(orientation.x))));
+                GetComponent<AudioSource>().PlayOneShot(shot);
                 fireTimer++;
                 animator.SetTrigger("Attack");
             }
@@ -228,6 +231,7 @@ public class Player : MonoBehaviour
         if (!invincibility)
         {
             life -= hitDamage;
+            GetComponent<AudioSource>().PlayOneShot(pain);
             StartCoroutine(Invincibility());
             GameManager.Instance.UiManagerScript.DisplayLife((int)life);
         }

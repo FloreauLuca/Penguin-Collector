@@ -105,6 +105,10 @@ public class Enemy : MonoBehaviour
                         FollowPlayer();
                     }
                     animator.SetBool("nrv", true);
+                    if (!GetComponent<AudioSource>().isPlaying)
+                    {
+                        GetComponent<AudioSource>().Play();
+                    }
                     break;
                 case EnemyState.GOBACKROOM:
                     if (followingPath != null)
@@ -116,11 +120,19 @@ public class Enemy : MonoBehaviour
                         GoBackRoom();
                     }
                     animator.SetBool("nrv", false);
+                    if (GetComponent<AudioSource>().isPlaying)
+                    {
+                        GetComponent<AudioSource>().Stop();
+                    }
 
                     break;
                 case EnemyState.STANDARDMOVE:
                     StandardMove();
                     animator.SetBool("nrv", false);
+                    if (GetComponent<AudioSource>().isPlaying)
+                    {
+                        GetComponent<AudioSource>().Stop();
+                    }
 
                     break;
             }

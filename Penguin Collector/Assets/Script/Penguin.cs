@@ -57,7 +57,6 @@ public class Penguin : MonoBehaviour
 
     private void FixedUpdate()
     {
-
         if (connectedRigidbody2D != null)
         {
             if (Vector2.Distance(transform.position, connectedRigidbody2D.position) < viewRadius)
@@ -253,6 +252,11 @@ public class Penguin : MonoBehaviour
                 other.gameObject.GetComponent<Player>().PenguinList.Add(this);
                 rigidbody2D.isKinematic = false;
                 connected = true;
+                if (!GetComponent<AudioSource>().isPlaying)
+                {
+                    GetComponent<AudioSource>().Play();
+                }
+
             }
         }
 

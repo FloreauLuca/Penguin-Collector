@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
@@ -74,7 +75,14 @@ public class GameManager : MonoBehaviour
     }
 
 
+    [SerializeField] private AudioMixer audioMixerMaster;
 
+    public AudioMixer AudioMixerMaster
+    {
+        get { return audioMixerMaster; }
+        set { audioMixerMaster = value; }
+    }
+    
 
     private void OnEnable()
     {

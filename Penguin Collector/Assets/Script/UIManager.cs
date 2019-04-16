@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Audio;
+using UnityEngine.UI;
 
 [Serializable]
 public class SerializeObject
@@ -28,6 +30,7 @@ public class SerializeObject
     public GameObject newHighScore;
 
     public GameObject levelComplete;
+    public GameObject audioButton;
 
     public GameObject global;
 }
@@ -38,6 +41,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private SerializeObject portrait;
     [SerializeField] private SerializeObject landscape;
     [SerializeField] private bool debug;
+
+    [SerializeField] private Sprite audioOn;
+    [SerializeField] private Sprite audioOff;
 
     private SerializeObject currentFormat;
     public SerializeObject CurrentFormat => currentFormat;
@@ -169,10 +175,13 @@ public class UIManager : MonoBehaviour
         portrait.scorePanel.SetActive(false);
         portrait.miniMap.SetActive(true);
         portrait.lifePanel.SetActive(true);
+        portrait.audioButton.SetActive(true);
 
         landscape.scorePanel.SetActive(false);
         landscape.miniMap.SetActive(true);
         landscape.lifePanel.SetActive(true);
+        landscape.audioButton.SetActive(true);
+
     }
 
     public void DisplayScore()
@@ -229,6 +238,22 @@ public class UIManager : MonoBehaviour
         landscape.levelComplete.SetActive(true);
     }
 
-
+    public void Mute()
+    {
+        float volume = 0;
+        GameManager.Instance.AudioMixerMaster.GetFloat("Volume", out volume);
+        if (volume > -50)
+        {
+            portrait.audioButton.GetComponent<Image>().sprite = audioOff;
+            landscape.audioButton.GetComponent<Image>().sprite = audioOff;
+            GameManager.Instance.AudioMixerMaster.SetFloat("Volume", -80);
+        }
+        else
+        {
+            portrait.audioButton.GetComponent<Image>().sprite = audioOn;
+            landscape.audioButton.GetComponent<Image>().sprite = audioOn;
+            GameManager.Instance.AudioMixerMaster.SetFloat("Volume", -10);
+        }
+    }
 
 }
