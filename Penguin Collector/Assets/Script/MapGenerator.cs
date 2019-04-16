@@ -1174,20 +1174,20 @@ public class MapGenerator : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        //for (int x = 0; x < mapSize; x++)
-        //{
-        //    for (int y = 0; y < mapSize; y++)
-        //    {
-        //        if (mapOfCells[x, y].room > -1)
-        //        {
-
-        //            Gizmos.color = mapOfCells[x, y].room < 0 ? Color.clear : colorsDebug[mapOfCells[x, y].room % colors.Count];
-        //            Gizmos.DrawCube(new Vector3(x + 0.5f, y + 0.5f, 0), Vector2.one);
-        //        }
-        //    }
-        //}
-        return;
         if (!isRunning) return;
+        for (int x = 0; x < mapSize; x++)
+        {
+            for (int y = 0; y < mapSize; y++)
+            {
+                if (mapOfCells[x, y].room > -1)
+                {
+
+                    Gizmos.color = mapOfCells[x, y].room < 0 ? Color.clear : colorsDebug[mapOfCells[x, y].room % colors.Count];
+                    Gizmos.DrawCube(new Vector3(x + 0.5f, y + 0.5f, 0), Vector2.one);
+                }
+            }
+        }
+        return;
 
         switch (gizmoState)
         {

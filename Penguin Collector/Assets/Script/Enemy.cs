@@ -267,10 +267,11 @@ public class Enemy : MonoBehaviour
 
     }
 
-    void OnDrawGizmos()
+    protected virtual void OnDrawGizmos()
     {
         if (followingPath == null) return;
         if (followingPath.Count <= indexPath) return;
+        Debug.Log(followingPath);
         foreach (Vector2 node in followingPath)
         {
             Gizmos.color = Color.green;

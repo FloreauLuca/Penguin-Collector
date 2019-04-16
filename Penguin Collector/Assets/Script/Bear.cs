@@ -56,5 +56,25 @@ public class Bear : Enemy
     {
         return connectedPenguin.ViewPlayer();
     }
-    
+
+
+    protected override void OnDrawGizmos()
+    {
+        base.OnDrawGizmos();
+        if (currentEnemyState != EnemyState.STANDARDMOVE) return;
+        if (standardMove == null) return;
+        if (standardMove.Count <= indexStandardMove) return;
+        Debug.Log(standardMove);
+        foreach (Vector2 node in standardMove)
+        {
+            Gizmos.color = Color.magenta;
+            if (node == standardMove[indexStandardMove])
+            {
+                Gizmos.color = Color.red;
+            }
+            Gizmos.DrawWireSphere(node, 0.1f);
+
+        }
+    }
+
 }

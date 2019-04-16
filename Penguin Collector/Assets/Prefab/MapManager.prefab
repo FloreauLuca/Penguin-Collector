@@ -50,6 +50,7 @@ MonoBehaviour:
   minSizeOfRoom: 15
   nbBear: 10
   nbSeal: 10
+  nbPenguin: 5
   tileIce: {fileID: 11400000, guid: 9fac0ba1916f5d646a5071d9ce8abe33, type: 2}
   tileWater: {fileID: 11400000, guid: b775986cc24a0e641a39f211953bbc37, type: 2}
   tilemapIce: {fileID: 0}
@@ -63,7 +64,7 @@ MonoBehaviour:
     type: 3}
   boatPrefab: {fileID: 6239980297088735005, guid: 0c02299f4b346924191a166b187790de,
     type: 3}
-  seed: 0
+  seed: 1
 --- !u!114 &5910262113908567715
 MonoBehaviour:
   m_ObjectHideFlags: 0

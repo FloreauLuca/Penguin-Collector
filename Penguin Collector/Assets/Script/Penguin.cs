@@ -277,14 +277,16 @@ public class Penguin : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        return;
+       
 
         if (!isRunning) return;
 
         Vector3 position = transform.position;
 
-        Gizmos.color = Color.white;
+        Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(position, detectRadius);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(position, viewRadius);
         /*
         Gizmos.color = Color.gray;
         Gizmos.DrawWireSphere(position, arrivalRadius);
@@ -295,7 +297,7 @@ public class Penguin : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawLine(position, position + (Vector3)desiredVelocity);
         */
-            if (followingPath == null) return;
+        if (followingPath == null) return;
             foreach (Vector2 node in followingPath)
             {
                 Gizmos.color = Color.green;

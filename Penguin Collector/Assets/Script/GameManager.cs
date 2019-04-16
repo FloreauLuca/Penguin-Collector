@@ -87,11 +87,12 @@ public class GameManager : MonoBehaviour
         {
             Application.Quit();
         }
-
+        /*
         if (Input.GetButtonDown("Restart"))
         {
             LoadLevel("GameScene");
         }
+        */
     }
 
     private void OnDisable()

@@ -68,5 +68,12 @@ public class Walrus : Enemy
 
         return false;
     }
-    
+
+    protected override void OnDrawGizmos()
+    {
+        base.OnDrawGizmos();
+        Vector3 position = transform.position;
+        Gizmos.color = new Color(0.5f,0.25f,0);
+        Gizmos.DrawWireSphere(position, viewRadius);
+    }
 }
