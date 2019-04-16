@@ -5,17 +5,20 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
-//1459
+
 public struct Cell
 {
+    // Generation du terrain
     public bool isAlive;
     public bool futureState;
-
     public Vector2Int position;
+    //Generation des regions
     public int region;
-    public int room;
     public bool edge;
-
+    public bool bridge;
+    // Generations des salles
+    public int room;
+    // Generation des enemies
     public bool occuped;
 }
 
@@ -51,56 +54,75 @@ public class Region
     }
 }
 
-public class CellularAutomata : MonoBehaviour
+public class MapGenerator : MonoBehaviour
 {
+    // Generation du terrain
     [SerializeField] [Range(0, 250)] private int mapSize = 50;
     public int MapSize => mapSize;
     [SerializeField] [Range(0, 100)] private int cellularIteration = 10;
-    [SerializeField] private int maxSizeOfRoom = 10;
-    [SerializeField] private int minSizeOfRoom = 10;
+    [SerializeField] private int maxSizeOfRoom = 40;
+    [SerializeField] private int minSizeOfRoom = 15;
     [SerializeField] private int nbBear = 10;
     [SerializeField] private int nbSeal = 10;
-    [SerializeField] private int nbChest = 10;
-    [SerializeField] private int nbPenguin = 10;
+
+    //[SerializeField] private int nbChest = 0;
+    [SerializeField] private int nbPenguin = 0;
+
+    // Affichage du terrain
     [SerializeField] private TileBase tileIce;
     [SerializeField] private TileBase tileWater;
-    [SerializeField] private SO_Enemy[] enemies;
-    [SerializeField] private GameObject chestPrefab;
-    [SerializeField] private GameObject penguinPrefab;
-    [SerializeField] private GameObject boatPrefab;
     [SerializeField] private Tilemap tilemapIce;
     [SerializeField] private Tilemap tilemapWater;
 
+    // Generation des enemies
+    [SerializeField] private SO_Enemy[] enemies;
+    //[SerializeField] private GameObject chestPrefab;
+    [SerializeField] private GameObject penguinPrefab;
+
+    // POint de départ personnage
+    [SerializeField] private GameObject boatPrefab;
+
 
     [SerializeField] private int seed;
-
-
-    bool isRunning; // Display Gizmos
-
     
 
 
     private Cell[,] mapOfCells;
-
     public Cell[,] MapOfCells => mapOfCells;
-
-    //private List<List<Cell>> regionOfCell;
-    //private List<List<Cell>> roomOfCell;
+    
     private List<Region> regionList;
     private List<Room> roomList;
     private List<Room> priorityRoomList;
 
     private int currentRegion = 0;
     private int biggestRegion = 0;
+
     private int currentRoom = 0;
 
-    private List<Color> colors;
+    private List<GameObject> walrusList;
+    private List<GameObject> bearList;
+    private List<GameObject> penguinList;
 
+    // debug
+    private List<Color> colors;
+    private List<Color> colorsDebug;
     private List<Vector2> debug;
+    bool isRunning; // Affichage Gizmos
+    private enum GizmoState
+    {
+        CELLULES,
+        REGION,
+        BRIDGES,
+        ROOM,
+        PRIORITYROOM,
+        ENEMY,
+        MAPNAV
+    }
+    private GizmoState gizmoState;
 
     void Start()
     {
-        //Initialize seed
+        //Initialisation de la seed
         if (seed == 0)
         {
             seed = Random.Range(0, 1000000000);
@@ -109,14 +131,38 @@ public class CellularAutomata : MonoBehaviour
         Debug.Log(seed);
 
         debug = new List<Vector2>();
-
-        //Create array
+        
         mapOfCells = new Cell[mapSize, mapSize];
 
         regionList = new List<Region>();
         roomList = new List<Room>();
 
         colors = new List<Color> {
+            new Color(1, 1, 1, 1f),
+            new Color(1, 0, 0, 1f),
+            new Color(0, 0, 1, 1f),
+            new Color(0, 1, 0, 1f),
+            new Color(1, 0, 1, 1f),
+            new Color(0, 1, 1, 1f),
+            new Color(1, 1, 0, 1f),
+            new Color(0.5f, 1, 1, 1f),
+            new Color(1, 0.5f, 0, 1f),
+            new Color(0, 0, 0.5f, 1f),
+            new Color(0, 0.5f, 0, 1f),
+            new Color(0.5f, 0, 1, 1f),
+            new Color(0, 0.5f, 1, 1f),
+            new Color(1, 1, 0.5f, 1f),
+            new Color(0.5f, 0.5f, 1, 1f),
+            new Color(0.5f, 0.5f, 0, 1f),
+            new Color(0, 0.5f, 0.5f, 1f),
+            new Color(0, 0.5f, 0.5f, 1f),
+            new Color(0.5f, 0, 0.5f, 1f),
+            new Color(0.5f, 0.5f, 1, 1f),
+            new Color(1, 0.5f, 0.5f, 1f),
+            new Color(0.5f, 0.5f, 0.5f, 1f),
+        };
+
+        colorsDebug = new List<Color> {
             new Color(1, 1, 1, 0.2f),
             new Color(1, 0, 0, 0.2f),
             new Color(0, 0, 1, 0.2f),
@@ -141,6 +187,11 @@ public class CellularAutomata : MonoBehaviour
             new Color(0.5f, 0.5f, 0.5f, 0.2f),
         };
 
+        penguinList = new List<GameObject>();
+        bearList = new List<GameObject>();
+        walrusList = new List<GameObject>();
+
+
         //Fill array by random
         for (int x = 0; x < mapSize; x++)
         {
@@ -158,40 +209,51 @@ public class CellularAutomata : MonoBehaviour
     IEnumerator WorldGeneration()
     {
         isRunning = true;
-
+        
+        //Initialisation du tableau
         Init();
 
+        // Generation du Cellular Automata
         for (int i = 0; i < cellularIteration; i++)
         {
             Cellular();
         }
-
         yield return null;
         GameManager.Instance.UiManagerScript.DisplayLoad(10);
+        gizmoState = GizmoState.CELLULES;
 
+        // Definition des régions
         GenerateRegion();
         yield return null;
         GameManager.Instance.UiManagerScript.DisplayLoad(20);
+        gizmoState = GizmoState.REGION;
 
-
+        // Connection des région prochent
         ConnectClosestRegions();
         yield return null;
         GameManager.Instance.UiManagerScript.DisplayLoad(30);
+        gizmoState = GizmoState.BRIDGES;
 
+        // Définition et organisations des salles
         GenerateRoom();
         yield return null;
         GameManager.Instance.UiManagerScript.DisplayLoad(40);
+        gizmoState = GizmoState.ROOM;
+        yield return null;
+        gizmoState = GizmoState.PRIORITYROOM;
+        yield return null;
 
+        // Affichage du terrain
         GenerateCube();
         yield return null;
         GameManager.Instance.UiManagerScript.DisplayLoad(50);
 
-
+        // Positionnement du joueur
         GameManager.Instance.SpawnPlayer();
         yield return null;
         GameManager.Instance.UiManagerScript.DisplayLoad(60);
 
-
+        // Générations des ours polaires
         for (int i = 0; i < nbBear; i++)
         {
             GenerateBear();
@@ -199,6 +261,7 @@ public class CellularAutomata : MonoBehaviour
         yield return null;
         GameManager.Instance.UiManagerScript.DisplayLoad(70);
 
+        // Generations des morses
         for (int i = 0; i < nbSeal; i++)
         {
             GenerateWalrus();
@@ -206,25 +269,34 @@ public class CellularAutomata : MonoBehaviour
         yield return null;
         GameManager.Instance.UiManagerScript.DisplayLoad(80);
 
+        /*                    Posibilité d'amélioration du jeu
         for (int i = 0; i < nbChest; i++)
         {
             GenerateChest();
         }
-        yield return null;
+        yield return new WaitForSeconds(10);
 
         for (int i = 0; i < nbPenguin; i++)
         {
             GeneratePenguin();
         }
-        yield return null;
+        yield return new WaitForSeconds(10);
+        */
 
+        gizmoState = GizmoState.ENEMY;
+
+        yield return null;
+        gizmoState = GizmoState.MAPNAV;
+        // Création des nodes pour le pathfinding
         GameManager.Instance.MapNav.Initialize(mapOfCells, roomList);
         yield return null;
         GameManager.Instance.UiManagerScript.DisplayLoad(100);
 
+        // Lancement du jeu
         GameManager.Instance.MapLoaded();
     }
 
+    //Initialisation du tableau
     void Init()
     {
         for (int x = 0; x < mapSize; x++)
@@ -245,6 +317,7 @@ public class CellularAutomata : MonoBehaviour
     }
 
 
+    // Generation du Cellular Automata
     void Cellular()
     {
         BoundsInt bounds = new BoundsInt(-1, -1, 0, 3, 3, 1);
@@ -295,6 +368,7 @@ public class CellularAutomata : MonoBehaviour
 
 
 
+    // Definition des régions
     void GenerateRegion()
     {
         BoundsInt bounds = new BoundsInt(-1, -1, 0, 3, 3, 1);
@@ -363,6 +437,7 @@ public class CellularAutomata : MonoBehaviour
         FindEdge();
     }
 
+
     void FindEdge()
     {
         for (int x = 0; x < mapSize; x++)
@@ -427,6 +502,8 @@ public class CellularAutomata : MonoBehaviour
         }
     }
 
+
+    // Trouver les régions adjacentent
     void ConnectClosestRegions()
     {
         int minDistance = 0;
@@ -474,6 +551,7 @@ public class CellularAutomata : MonoBehaviour
         }
     }
 
+    // Generation de chemins entre les régions adjacents
     void GenerateBridge(int bestRegionA, int bestRegionB, Cell bestEdgeA, Cell bestEdgeB)
     { 
         Vector2Int startPosition = bestEdgeA.position;
@@ -517,6 +595,7 @@ public class CellularAutomata : MonoBehaviour
                     if (currentPosition.y + b.y < 0 || currentPosition.y + b.y >= mapSize) continue;
                     if (mapOfCells[currentPosition.x + b.x, currentPosition.y + b.y].isAlive) continue;
                     mapOfCells[currentPosition.x + b.x, currentPosition.y + b.y].isAlive = true;
+                    mapOfCells[currentPosition.x + b.x, currentPosition.y + b.y].bridge = true;
                     mapOfCells[currentPosition.x + b.x, currentPosition.y + b.y].room = -1;
                 }
             }
@@ -527,8 +606,10 @@ public class CellularAutomata : MonoBehaviour
     }
 
 
+    // Définition des salles
     void GenerateRoom()
     {
+        // Gestion des salles isolées
         for (int indexRegion = 0; indexRegion < regionList.Count; indexRegion++)
         {
             if ((regionList[indexRegion].cells.Count < minSizeOfRoom || regionList[indexRegion].cells.Count > maxSizeOfRoom)|| regionList[indexRegion].connectedRegions.Count != 1) continue;
@@ -602,7 +683,7 @@ public class CellularAutomata : MonoBehaviour
         }
 
 
-        
+        // FlowField des grandes régions
         BoundsInt bounds = new BoundsInt(-1, -1, 0, 3, 3, 1);
         roomList.Add(new Room());
         for (int x = 0; x < mapSize; x++)
@@ -674,13 +755,22 @@ public class CellularAutomata : MonoBehaviour
         }
         roomList.RemoveAt(roomList.Count - 1);
 
+
+
+        // Suppression des salles trop petites et définitions des voisins
         OrganizeRoom();
+
+        // Calcule des bordures
         FindEdge();
+
+        // Organisations des salles par rapport à leurs isolations
         PriorityCalculation();
     }
-
+    
+    // Suppression des salles trop petites et définitions des voisins
     void OrganizeRoom()
     {
+        // suppresion des salles trop petites
         foreach (Room room in roomList)
         {
             if (room.cells.Count < minSizeOfRoom && !room.island)
@@ -722,6 +812,8 @@ public class CellularAutomata : MonoBehaviour
             }
         }
 
+        //Definition des voisins
+
         foreach (Room room in roomList)
         {
             foreach (Cell cell in room.cells)
@@ -744,8 +836,11 @@ public class CellularAutomata : MonoBehaviour
         
     }
 
+
+    // Organisations des salles par rapport à leurs isolations
     void PriorityCalculation()
     {
+
         priorityRoomList = new List<Room>();
         foreach (Room room in roomList)
         {
@@ -792,13 +887,9 @@ public class CellularAutomata : MonoBehaviour
             }
 
         }
-
-        foreach (Room room1 in priorityRoomList)
-        {
-            //Debug.Log(room1.neighboursRooms.Count + "   " + room1.edgeCells.Count + "   " + room1.island + room1.cells[0].position);
-        }
     }
 
+    // Affichage du terrain
     void GenerateCube()
     {
         for (int x = 0; x < mapSize; x++)
@@ -822,6 +913,7 @@ public class CellularAutomata : MonoBehaviour
         roomList[indexRoom].occuped = true;
     }
 
+    // Générations des ours polaires
     void GenerateBear()
     {
         Room spawningRoom = new Room();
@@ -846,27 +938,32 @@ public class CellularAutomata : MonoBehaviour
                 }
             }
         }
-
-        //Debug.Log(spawningRoom.cells[0].position);
+        
         if (spawningRoom.cells.Count > 0)
         {
             Vector2Int newPosition = GetSpawn(spawningRoom);
             if (newPosition != Vector2Int.zero)
             {
                 GameObject penguin = Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
-                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
-                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
-                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
-                Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
+                penguinList.Add(penguin);
+                if (nbPenguin > 1)
+                {
+                    for (int i = 1; i < nbPenguin; i++)
+                    {
+                        Instantiate(penguinPrefab, new Vector3(newPosition.x + 0.5f, newPosition.y + 0.5f, 0), Quaternion.identity);
+                    }
+                }
+
                 GameObject bear = enemies[1].Instantiate(new Vector2(newPosition.x + 1 + 0.5f, newPosition.y + 0.5f), GetRegion(newPosition));
                 bear.GetComponent<Bear>().ConnectedPenguin = penguin.GetComponent<Penguin>();
+                bearList.Add(bear);
             }
             mapOfCells[newPosition.x, newPosition.y].occuped = true;
             spawningRoom.occuped = true;
         }
     }
 
-
+    // Generations des morses
     void GenerateWalrus()
     {
         Room spawningRoom = new Room();
@@ -885,16 +982,17 @@ public class CellularAutomata : MonoBehaviour
             Vector2Int newPosition = GetSpawn(spawningRoom);
             if (newPosition != Vector2Int.zero)
             {
-                enemies[0].Instantiate(new Vector2(newPosition.x + 0.5f, newPosition.y + 0.5f), GetRegion(newPosition));
+                GameObject walrus = enemies[0].Instantiate(new Vector2(newPosition.x + 0.5f, newPosition.y + 0.5f), GetRegion(newPosition));
+                walrusList.Add(walrus);
             }
 
             spawningRoom.occuped = true;
         }
     }
-    
+    /*                                                                                                    Posibilité d'amélioration du jeu
     void GenerateChest()
     {
-        /*
+        
         BoundsInt boundsChest = new BoundsInt(-2, -2, 0, 5, 5, 1);
         for (int i = 0; i < 1000; i++)
         {
@@ -935,7 +1033,7 @@ public class CellularAutomata : MonoBehaviour
             currentChestRegion++;
             break;
         }
-        */
+        
 
     }
 
@@ -969,7 +1067,10 @@ public class CellularAutomata : MonoBehaviour
         }
 
     }
+    */
 
+
+    // Trouve un emplacement libre dans une salle
     public Vector2Int GetSpawn(Room room)
     {
         BoundsInt bounds = new BoundsInt(-1, -1, 0, 3, 3, 1);
@@ -1001,6 +1102,7 @@ public class CellularAutomata : MonoBehaviour
         return Vector2Int.zero;
     }
 
+    // trouve uneb bordurelibre pour le joueur
     public Vector2Int GetPlayerSpawn()
     {
         roomList[0].occuped = true;
@@ -1044,6 +1146,7 @@ public class CellularAutomata : MonoBehaviour
         return Vector2Int.zero;
     }
 
+
     public int GetRegion(Vector2Int position)
     {
         return mapOfCells[position.x, position.y].region;
@@ -1071,9 +1174,7 @@ public class CellularAutomata : MonoBehaviour
 
     void OnDrawGizmos()
     {
-
         if (!isRunning) return;
-
         for (int x = 0; x < mapSize; x++)
         {
             for (int y = 0; y < mapSize; y++)
@@ -1081,27 +1182,120 @@ public class CellularAutomata : MonoBehaviour
                 if (mapOfCells[x, y].room > -1)
                 {
 
-                    Gizmos.color = mapOfCells[x, y].room < 0 ? Color.clear : colors[mapOfCells[x, y].room % colors.Count];
+                    Gizmos.color = mapOfCells[x, y].room < 0 ? Color.clear : colorsDebug[mapOfCells[x, y].room % colors.Count];
                     Gizmos.DrawCube(new Vector3(x + 0.5f, y + 0.5f, 0), Vector2.one);
                 }
             }
         }
+        return;
 
-        //Gizmos.DrawIcon(new Vector3(11 + 0.5f, 42+0.5f, 0), "penguoin3.png");
-        /*
-        foreach (Room room in roomList)
+        switch (gizmoState)
         {
-            foreach (Cell edgeCell in room.edgeCells)
-            {
+            case GizmoState.CELLULES:
+                for (int x = 0; x < mapSize; x++)
+                {
+                    for (int y = 0; y < mapSize; y++)
+                    {
+                        if (!mapOfCells[x, y].isAlive)
+                        {
 
-                Gizmos.DrawIcon(new Vector3(edgeCell.position.x + 0.5f, edgeCell.position.y + 0.5f, 0), "hammeritem.png");
-            }
-        }*/
+                            Gizmos.color = Color.black;
+                        }
+                        else
+                        {
+                            Gizmos.color= Color.white;
+                        }
 
-        foreach (var point in debug)
-        {
-            Gizmos.DrawIcon(point, "hammeritem.png");
+                        Gizmos.DrawCube(new Vector3(x + 0.5f, y + 0.5f, 0), Vector2.one);
+                    }
+                }
+                break;
+            case GizmoState.REGION:
+
+                for (int x = 0; x < mapSize; x++)
+                {
+                    for (int y = 0; y < mapSize; y++)
+                    {
+                        if (mapOfCells[x, y].region > -1)
+                        {
+
+                            Gizmos.color = mapOfCells[x, y].region < 0 ? Color.clear : colors[mapOfCells[x, y].region % colors.Count];
+                            Gizmos.DrawCube(new Vector3(x + 0.5f, y + 0.5f, 0), Vector2.one);
+                        }
+                    }
+                }
+                break;
+            case GizmoState.BRIDGES:
+                for (int x = 0; x < mapSize; x++)
+                {
+                    for (int y = 0; y < mapSize; y++)
+                    {
+                        if (mapOfCells[x, y].bridge)
+                        {
+
+                            Gizmos.color = Color.red;
+                            Gizmos.DrawCube(new Vector3(x + 0.5f, y + 0.5f, 0), Vector2.one);
+                        }
+                        else if (mapOfCells[x, y].edge)
+                        {
+                            Gizmos.color = Color.yellow;
+                            Gizmos.DrawCube(new Vector3(x + 0.5f, y + 0.5f, 0), Vector2.one);
+                        }
+                    }
+                }
+                break;
+            case GizmoState.ROOM:
+                for (int x = 0; x < mapSize; x++)
+                {
+                    for (int y = 0; y < mapSize; y++)
+                    {
+                        if (mapOfCells[x, y].room > -1)
+                        {
+
+                            Gizmos.color = mapOfCells[x, y].room < 0 ? Color.clear : colors[mapOfCells[x, y].room % colors.Count];
+                            Gizmos.DrawCube(new Vector3(x + 0.5f, y + 0.5f, 0), Vector2.one);
+                        }
+                    }
+                }
+                break;
+            case GizmoState.PRIORITYROOM:
+                for (float i = 0; i < priorityRoomList.Count; i++)
+                {
+                    foreach (Cell cell in priorityRoomList[(int)i].cells)
+                    {
+                        Gizmos.color = Color.black * ((priorityRoomList.Count - i) / priorityRoomList.Count);
+                        Gizmos.DrawCube(new Vector3(cell.position.x + 0.5f, cell.position.y + 0.5f, 0), Vector2.one);
+                    }
+                }
+                break;
+            case GizmoState.ENEMY:
+                for (float i = 0; i < priorityRoomList.Count; i++)
+                {
+                    foreach (Cell cell in priorityRoomList[(int)i].cells)
+                    {
+                        Gizmos.color = Color.black*((priorityRoomList.Count-i)/priorityRoomList.Count);
+                        Gizmos.DrawCube(new Vector3(cell.position.x + 0.5f, cell.position.y + 0.5f, 0), Vector2.one);
+                    }
+                }
+                foreach (GameObject bear in bearList)
+                {
+                    Gizmos.DrawIcon(new Vector3(bear.transform.position.x, bear.transform.position.y, -5), "BearGizmos.png", false);
+                        
+                }
+                foreach (GameObject walrus in walrusList)
+                {
+                    Gizmos.DrawIcon(new Vector3(walrus.transform.position.x, walrus.transform.position.y, -1), "WalrusGizmos.png", false);
+
+                }
+                foreach (GameObject penguin in penguinList)
+                {
+                    Gizmos.DrawIcon(new Vector3(penguin.transform.position.x, penguin.transform.position.y, -1), "PenguinGizmos.png",false);
+
+                }
+                break;
+            case GizmoState.MAPNAV:
+                break;
         }
-
+        
     }
 }

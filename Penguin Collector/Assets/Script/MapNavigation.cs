@@ -5,15 +5,13 @@ using UnityEngine;
 
 public class Node
 {
+    // Map Representation
     public List<Node> neighbors;
     public Vector2 pos;
-
     public bool isFree;
-
-
+    // Pathfinding
     public bool hasBeenVisited = false;
     public bool isPath = false;
-
     public Node cameFrom = null;
 
     public float cost;
@@ -24,23 +22,16 @@ public class Node
 public class MapNavigation : MonoBehaviour
 {
     private Node[,] nodes;
-    private CellularAutomata mapScript;
-
-    // Start is called before the first frame update
+    private MapGenerator mapScript;
+    
     void Start()
     {
         mapScript = GameManager.Instance.MapScript;
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
     
     public void Initialize(Cell[,] cells, List<Room> rooms)
     {
+        // Generation de nodes
         nodes = new Node[mapScript.MapSize * 2 + 1, mapScript.MapSize * 2 + 1];
         for (int x = 0; x < mapScript.MapSize; x++)
         {
@@ -48,7 +39,6 @@ public class MapNavigation : MonoBehaviour
             {
                 if (cells[x, y].isAlive && cells[x, y].room != -1)
                 {
-                   
                     BoundsInt boundsCell = new BoundsInt(-1, -1, 0, 3, 3, 1);
                     foreach (Vector2Int b in boundsCell.allPositionsWithin)
                     {
@@ -63,6 +53,7 @@ public class MapNavigation : MonoBehaviour
                             isFree = true
 
                         };
+
                         if (cells[x, y].room > 0)
                         {
                             if (rooms[cells[x, y].room].occuped)
@@ -82,17 +73,21 @@ public class MapNavigation : MonoBehaviour
                         if (cells[x, y].occuped)
                         {
                             newNode.isFree = false;
+                            newNode.pos = new Vector2(x + 0.5f + b.x / 2f, y + 0.5f + b.y / 2f);
+                            nodes[x * 2, y * 2] = newNode;
                         }
-                        newNode.pos = new Vector2(x + 0.5f + b.x / 2f, y + 0.5f + b.y / 2f);
-                        nodes[x * 2 + b.x, y * 2 + b.y] = newNode;
+                        else
+                        {
+                            newNode.pos = new Vector2(x + 0.5f + b.x / 2f, y + 0.5f + b.y / 2f);
+                            nodes[x * 2 + b.x, y * 2 + b.y] = newNode;
+                        }
                     }
                 }
             }
         }
 
-
+        // Definition des voisins
         BoundsInt bounds = new BoundsInt(-1, -1, 0, 3, 3, 1);
-
         for (int x = 0; x < mapScript.MapSize * 2 + 1; x++)
         {
             for (int y = 0; y < mapScript.MapSize * 2 + 1; y++)
@@ -122,7 +117,7 @@ public class MapNavigation : MonoBehaviour
         }
     }
     
-    /*
+    /*                                                      Generations d'une seul node par cellule (potentiellement réutitlisable)
     public void Initialize(Cell[,] cells, List<Room> rooms)
     {
         nodes = new Node[mapScript.MapSize, mapScript.MapSize];
@@ -200,6 +195,7 @@ public class MapNavigation : MonoBehaviour
     }
     */
 
+    // Trouve la node la plus proche
     public Node GetNode(Vector2 pos)
     {
         Node returnNode = null;
@@ -219,6 +215,7 @@ public class MapNavigation : MonoBehaviour
         return returnNode;
     }
 
+
     public List<Vector2> Astar(Vector2 goalPosition, Vector2 startPosition)
     {
         Node startingNode = GetNode(startPosition);
@@ -226,8 +223,10 @@ public class MapNavigation : MonoBehaviour
         List<Node> openList = new List<Node> { startingNode };
         List<Node> closedList = new List<Node>();
         List<Vector2> path = new List<Vector2>();
+
         int crashValue = 10000;
 
+        // Recherche un chemin
         while (openList.Count > 0 && --crashValue > 0)
         {
             openList = openList.OrderBy(x => x.currentCost + Vector2.Distance(x.pos, goalNode.pos) * 5).ToList();
@@ -278,7 +277,7 @@ public class MapNavigation : MonoBehaviour
             Debug.Log("Nico a fait de la merde, CHEH");
         }
 
-
+        // Retourne le chemin
         {
             Node currentNode = goalNode;
             while (currentNode.cameFrom != null)
@@ -294,6 +293,10 @@ public class MapNavigation : MonoBehaviour
         return path;
     }
 
+
+
+
+
     private void ResetNode()
     {
         foreach (Node node in nodes)
@@ -306,15 +309,26 @@ public class MapNavigation : MonoBehaviour
         }
     }
 
+
+
     void OnDrawGizmos()
     {
+        return;
         if (nodes == null) return;
-        //if (nodes != null) return;
+
         foreach (Node node in nodes)
         {
             if (node == null) continue;
             Gizmos.color = node.isFree ? Color.blue : Color.red;
-            
+            if (node.hasBeenVisited)
+            {
+                Gizmos.color = Color.yellow;
+            }
+            if (node.isPath)
+            {
+                Gizmos.color = Color.green;
+            }
+
             Gizmos.DrawWireSphere(node.pos, 0.1f);
 
             foreach (Node nodeNeighbor in node.neighbors)
