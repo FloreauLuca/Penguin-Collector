@@ -194,18 +194,23 @@ public class UIManager : MonoBehaviour
 
     public void Menu()
     {
+        GameManager.Instance.CurrentScore = 0;
         GameManager.Instance.LoadLevel("MenuScene");
+        
     }
 
     public void DisplayGameOver()
     {
         portrait.gameOverPanel.SetActive(true);
         portrait.gameOverscoreText.text = GameManager.Instance.CurrentScore.ToString();
-        portrait.newHighScore.SetActive(true);
+        if (GameManager.Instance.HighScore < GameManager.Instance.CurrentScore)
+        {
+            portrait.newHighScore.SetActive(true);
+            landscape.newHighScore.SetActive(true);
+        }
 
         landscape.gameOverPanel.SetActive(true);
         landscape.gameOverscoreText.text = GameManager.Instance.CurrentScore.ToString();
-        landscape.newHighScore.SetActive(true);
     }
 
 

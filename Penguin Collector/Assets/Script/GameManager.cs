@@ -161,7 +161,6 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-
         uiManagerScript.DisplayGameOver();
         if (highScore <= currentScore)
         {

@@ -83,14 +83,13 @@ public class Penguin : MonoBehaviour
             {
                 Vector2 separateForce = Separate();
                 
-                if (timer >= 2)
+                if (timer >= 3)
                 {
                     if (Vector2.Distance(GameManager.Instance.MapNav.GetNode(transform.position).pos, transform.position) > 0.3f)
                     {
                         transform.position = GameManager.Instance.MapNav.GetNode(transform.position).pos;
                     }
                     followingPath = GameManager.Instance.MapNav.Astar(transform.position, GameManager.Instance.PlayerScript.transform.position);
-                    debugTimer = 0;
                     indexPath = 0;
                     timer = 0;
                 }
@@ -114,7 +113,7 @@ public class Penguin : MonoBehaviour
 
     public void FollowPath()
     {
-        if (debugTimer > 5)
+        if (debugTimer > 2)
         {
             transform.position = GameManager.Instance.MapNav.GetNode(transform.position).pos;
         }
